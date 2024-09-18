@@ -1,5 +1,4 @@
 package chess;
-import javax.lang.model.type.NullType;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,52 +90,72 @@ public class ChessPiece {
     }
     
     // Example methods for adding specific piece moves
-    
-    private void addPawnMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
-        // Implement pawn movement logic here
-    }
-    
-    private void addRookMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
-        // Implement rook movement logic here
-        
-        // I think I'm just going to check
-        // up, down, left, and right, using four 
-        // for-loops
 
+    private boolean validateMove(ChessBoard board, ChessPosition position, ChessPosition endPosition, List<ChessMove> moves) {
+        if (board.getPiece(endPosition) != null) { // if there's a piece where we want to go
+            if (this.color != board.getPiece(endPosition).getTeamColor()){
+                moves.add(new ChessMove(position, endPosition, this.type));  // opposite team's pieces can be captured
+                System.out.println("Enemy Piece");
+                return true;
+            }
+            System.out.println("Friendly Piece");
+            return false; // if it's the same team then we can't go there
+        } else {
+            moves.add(new ChessMove(position, endPosition, this.type));
+            System.out.println("Empty Space");
+            return true;
+        }
+    }
+
+    private void addRookMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
         int row = position.getRow();
         int col = position.getColumn();
-
+        System.out.println("\nTHE BOARD:\n" + board.toString());
         // looking up
-        if (row < 8) {
-            for (int i = row + 1; i <= 8; i++) {
-                // make a function called validate_move that does all the code from here.....
-                ChessPosition end_position =  new ChessPosition(i,col);
-                if (board.getPiece(end_position) != null) { // if there's a piece where we want to go
-                    if (this.color != board.getPiece(end_position).getTeamColor()){
-                        moves.add(new ChessMove(position, end_position, this.type));  // opposite team's pieces can be captured
-                    }
-                    break;
-                } else {
-                    moves.add(new ChessMove(position, end_position, this.type));
+        System.out.println("\nLOOKING UP");
+        if (row < 7) {
+            for (int j = row + 1; j < 8; j++) {
+                if (validateMove(board, position, new ChessPosition(col, j), moves)) {
+                    System.out.println("column (x): " + col);
+                    System.out.println("row (y): " + j);
                 }
-                // .......until here
             }
         }
         // looking down
-        if (row > 1) {
-            for (int i = row - 1; i >= 1; i--) {
-                ChessPosition move_candidate = new ChessPosition(i,col);
+        System.out.println("\nLOOKING DOWN");
+        if (row > 0) {
+            for (int j = row - 1; j >= 0; j--) {
+                if (validateMove(board, position, new ChessPosition(col, j), moves)) {
+                    System.out.println("column (x): " + col);
+                    System.out.println("row (y): " + j);
+                }
             }
         }
         // looking left
-//        if (col > 1) {
-//            for (int i = col - 1; i >= 1; i--) {}
-//        }
-//        // looking right
-//        if (col < 1) {
-//            for (int i = col + 1; i <= 8; i++) {}
-//        }
+        System.out.println("\nLOOKING LEFT");
+        if (col > 0) {
+            for (int i = col - 1; i >= 0; i--) {
+                if (validateMove(board, position, new ChessPosition(i, row), moves)) {
+                    System.out.println("column (x): " + i);
+                    System.out.println("row (y): " + row);
+                }
+            }
+        }
+        // looking right
+        System.out.println("\nLOOKING RIGHT");
+        if (col < 7) {
+            for (int i = col + 1; i < 8; i++) {
+                if (validateMove(board, position, new ChessPosition(i, row), moves)) {
+                    System.out.println("column (x): " + i);
+                    System.out.println("row (y): " + row);
+                }
+            }
+        }
 
+    }
+
+    private void addPawnMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
+        // Implement pawn movement logic here
     }
     
     private void addBishopMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
