@@ -11,9 +11,13 @@ import java.util.Objects;
  */
 public class ChessBoard {
     private ChessPiece[][] squares = new ChessPiece[8][8];   
-
+    private boolean[][] visible = new boolean[8][8];
     public ChessBoard() {
-        
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                visible[i][j] = true;
+            }
+        }
     }
 
     /**
@@ -26,6 +30,14 @@ public class ChessBoard {
         squares[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
+    // these are used in the validateKingMove function in ChessPiece.java
+    public void hide(ChessPosition position) {
+        visible[position.getRow() - 1][position.getColumn() - 1] = false;
+    }
+    public void unhide(ChessPosition position) {
+        visible[position.getRow() - 1][position.getColumn() - 1] = true;
+    }
+
     /**
      * Gets a chess piece on the chessboard
      *
@@ -34,7 +46,9 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return squares[position.getRow() - 1][position.getColumn() - 1];
+        if (visible[position.getRow() - 1][position.getColumn() - 1]) {
+            return squares[position.getRow() - 1][position.getColumn() - 1];
+        } else { return null; }
     }
 
     /**

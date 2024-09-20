@@ -370,9 +370,75 @@ public class ChessPiece {
             }
         }
     }
-    
+
+    private void validateKingMove(ChessBoard board, ChessPosition position, ChessPosition endPosition, List<ChessMove> moves) {
+        if (((board.getPiece(endPosition)) != null) && (board.getPiece(endPosition).getTeamColor() == this.color)) { // can't capture own  team's piece
+            return;
+        }
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition placeToCheck = new ChessPosition(i,j); // checking all positions on board
+                if ((board.getPiece(placeToCheck) != null) && (this.color != board.getPiece(placeToCheck).getTeamColor())) { // if the piece in question is on opposite team
+                    // board.hide(endPosition);
+                    Collection<ChessMove> movesToCheck = board.getPiece(placeToCheck).pieceMoves(board, placeToCheck);
+                    if ((movesToCheck.contains(new ChessMove(placeToCheck, endPosition, null))) || (movesToCheck.contains(new ChessMove(placeToCheck, endPosition, PieceType.QUEEN)))){
+                        board.unhide(endPosition);
+                        return; // if any piece on the board could attack the king then we don't add the move
+                    }
+                    board.unhide(endPosition);
+                }
+                board.unhide(endPosition);
+            }
+        }
+        moves.add(new ChessMove(position, endPosition, null)); // if we made it through all of that then it's a safe move
+    }
+
     private void addKingMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
-        // Implement king movement logic here
+        int row = position.getRow();
+        int col = position.getColumn();
+
+        // looking up
+        if (row < 8) {
+            ChessPosition endPosition = new ChessPosition(row + 1, col);
+            validateKingMove(board, position, endPosition, moves);
+        }
+        // looking down
+        if (row > 1) {
+            ChessPosition endPosition = new ChessPosition(row - 1, col);
+            validateKingMove(board, position, endPosition, moves);
+        }
+        // looking left
+        if (col > 1) {
+            ChessPosition endPosition = new ChessPosition(row, col - 1);
+            validateKingMove(board, position, endPosition, moves);
+        }
+        // looking right
+        if (col < 8) {
+            ChessPosition endPosition = new ChessPosition(row, col + 1);
+            validateKingMove(board, position, endPosition, moves);
+        }
+        // looking up and right
+        if (row < 8 && col < 8) {
+            ChessPosition endPosition = new ChessPosition(row +1 , col + 1);
+            validateKingMove(board, position, endPosition, moves);
+        }
+        // looking down and right
+        // not sure if this for loop logic is right
+        if (row > 1 && col < 8) {
+            ChessPosition endPosition = new ChessPosition(row - 1, col + 1);
+            validateKingMove(board, position, endPosition, moves);
+        }
+        // looking up and left
+        if (row < 8 && col > 1) {
+            ChessPosition endPosition = new ChessPosition(row + 1, col - 1);
+            validateKingMove(board, position, endPosition, moves);
+        }
+        // looking down and left
+        if (row > 1 && col > 1) {
+            ChessPosition endPosition = new ChessPosition(row - 1, col - 1);
+            validateKingMove(board, position, endPosition, moves);
+        }
+
     }
     
 }
