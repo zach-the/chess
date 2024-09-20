@@ -103,6 +103,31 @@ public class ChessPiece {
         }
     }
 
+    private void addPawnMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
+        int row = position.getRow();
+        int col = position.getColumn();
+        // Logic will be different for white vs black
+        if (this.color == ChessGame.TeamColor.WHITE) {
+            ChessPosition oneSpace = new ChessPosition(row + 1, col);
+            if (board.getPiece(oneSpace) == null){
+                moves.add(new ChessMove(position, oneSpace, null));
+                if (row == 2) {
+                    ChessPosition twoSpace = new ChessPosition(row + 2, col);
+                    if (board.getPiece(twoSpace) == null) {
+                        moves.add(new ChessMove(position, twoSpace, null));
+                    }
+                }
+            }
+            // add diagonal attacks
+            // figure out how to elegantly implement promotion at row == 8
+        } else /* this.color == ChessGame.TeamColor.BLACK */ {
+            if (row == 7) { // two-space first move case
+                ChessPosition endPosition = new ChessPosition(row - 2, col);
+                validateMoveAndStop(board, position, endPosition, moves);
+            }
+        }
+    }
+
     private void addRookMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
         int row = position.getRow();
         int col = position.getColumn();
@@ -137,10 +162,6 @@ public class ChessPiece {
                 if (validateMoveAndStop(board, position, endPosition, moves)) { break; }
             }
         }
-    }
-
-    private void addPawnMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
-        // Implement pawn movement logic here
     }
     
     private void addBishopMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
@@ -183,7 +204,6 @@ public class ChessPiece {
         int col = position.getColumn();
         int tmprow = -1;
         int tmpcol = -1;
-
 
         // up right
         tmprow = row + 2;
