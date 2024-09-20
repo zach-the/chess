@@ -179,7 +179,68 @@ public class ChessPiece {
     }
     
     private void addKnightMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
-        // Implement knight movement logic here
+        int row = position.getRow();
+        int col = position.getColumn();
+        int tmprow = -1;
+        int tmpcol = -1;
+
+
+        // up right
+        tmprow = row + 2;
+        tmpcol = col + 1;
+        if (tmprow <= 8 && tmpcol <= 8) {
+            ChessPosition endPosition = new ChessPosition(tmprow, tmpcol);
+            validateMoveAndStop(board, position, endPosition, moves);
+        }
+        // right up
+        tmprow = row + 1;
+        tmpcol = col + 2;
+        if (tmprow <= 8 && tmpcol <= 8) {
+            ChessPosition endPosition = new ChessPosition(tmprow, tmpcol);
+            validateMoveAndStop(board, position, endPosition, moves);
+        }
+        // down right
+        tmprow = row - 2;
+        tmpcol = col + 1;
+        if (tmprow >= 1 && tmpcol <= 8) {
+            ChessPosition endPosition = new ChessPosition(tmprow, tmpcol);
+            validateMoveAndStop(board, position, endPosition, moves);
+        }
+        // right down
+        tmprow = row - 1;
+        tmpcol = col + 2;
+        if (tmprow >= 1 && tmpcol <= 8) {
+            ChessPosition endPosition = new ChessPosition(tmprow, tmpcol);
+            validateMoveAndStop(board, position, endPosition, moves);
+        }
+        // up left
+        tmprow = row + 2;
+        tmpcol = col - 1;
+        if (tmprow <= 8 && tmpcol >= 1) {
+            ChessPosition endPosition = new ChessPosition(tmprow, tmpcol);
+            validateMoveAndStop(board, position, endPosition, moves);
+        }
+        // left up
+        tmprow = row + 1;
+        tmpcol = col - 2;
+        if (tmprow <= 8 && tmpcol >= 1) {
+            ChessPosition endPosition = new ChessPosition(tmprow, tmpcol);
+            validateMoveAndStop(board, position, endPosition, moves);
+        }
+        // down left
+        tmprow = row - 2;
+        tmpcol = col - 1;
+        if (tmprow >= 1 && tmpcol >= 1) {
+            ChessPosition endPosition = new ChessPosition(tmprow, tmpcol);
+            validateMoveAndStop(board, position, endPosition, moves);
+        }
+        // left down
+        tmprow = row - 1;
+        tmpcol = col - 2;
+        if (tmprow >= 1 && tmpcol >= 1) {
+            ChessPosition endPosition = new ChessPosition(tmprow, tmpcol);
+            validateMoveAndStop(board, position, endPosition, moves);
+        }
     }
     
     private void addQueenMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
