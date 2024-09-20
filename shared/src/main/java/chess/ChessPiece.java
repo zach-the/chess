@@ -103,14 +103,33 @@ public class ChessPiece {
         }
     }
 
+    private void checkPawnPromotionMove(ChessBoard board, ChessPosition position, ChessPosition endPosition, List<ChessMove> moves) {
+        // promotion cases below
+        if ((endPosition.getRow() == 8) && (this.color == ChessGame.TeamColor.WHITE)) {
+            moves.add(new ChessMove(position, endPosition, PieceType.KNIGHT));
+            moves.add(new ChessMove(position, endPosition, PieceType.QUEEN));
+            moves.add(new ChessMove(position, endPosition, PieceType.ROOK));
+            moves.add(new ChessMove(position, endPosition, PieceType.BISHOP));
+        } else if ((endPosition.getRow() == 1) && (this.color == ChessGame.TeamColor.BLACK)) {
+            moves.add(new ChessMove(position, endPosition, PieceType.KNIGHT));
+            moves.add(new ChessMove(position, endPosition, PieceType.QUEEN));
+            moves.add(new ChessMove(position, endPosition, PieceType.ROOK));
+            moves.add(new ChessMove(position, endPosition, PieceType.BISHOP));
+        } else {
+            moves.add(new ChessMove(position, endPosition, null)); // if not promotion case, then leave pawn as is
+        }
+    }
+
     private void addPawnMoves(ChessBoard board, ChessPosition position, List<ChessMove> moves) {
         int row = position.getRow();
         int col = position.getColumn();
         // Logic will be different for white vs black
         if (this.color == ChessGame.TeamColor.WHITE) {
+            // normal move
             ChessPosition oneSpace = new ChessPosition(row + 1, col);
             if (board.getPiece(oneSpace) == null){
-                moves.add(new ChessMove(position, oneSpace, null));
+                checkPawnPromotionMove(board, position, oneSpace, moves);
+                // first move condition
                 if (row == 2) {
                     ChessPosition twoSpace = new ChessPosition(row + 2, col);
                     if (board.getPiece(twoSpace) == null) {
@@ -118,12 +137,36 @@ public class ChessPiece {
                     }
                 }
             }
-            // add diagonal attacks
-            // figure out how to elegantly implement promotion at row == 8
+            // diagonal attacks
+            ChessPosition diagonalRight = new ChessPosition(row + 1, col + 1);
+            ChessPosition diagonalLeft = new ChessPosition(row + 1, col - 1);
+            if ((board.getPiece(diagonalRight) != null) && (board.getPiece(diagonalRight).getTeamColor() == ChessGame.TeamColor.BLACK)) {
+                checkPawnPromotionMove(board, position, diagonalRight, moves);
+            }
+            if ((board.getPiece(diagonalLeft) != null) && (board.getPiece(diagonalLeft).getTeamColor() == ChessGame.TeamColor.BLACK)) {
+                checkPawnPromotionMove(board, position, diagonalLeft, moves);
+            }
         } else /* this.color == ChessGame.TeamColor.BLACK */ {
-            if (row == 7) { // two-space first move case
-                ChessPosition endPosition = new ChessPosition(row - 2, col);
-                validateMoveAndStop(board, position, endPosition, moves);
+            // normal move
+            ChessPosition oneSpace = new ChessPosition(row - 1, col);
+            if (board.getPiece(oneSpace) == null){
+                checkPawnPromotionMove(board, position, oneSpace, moves);
+                // first move condition
+                if (row == 7) {
+                    ChessPosition twoSpace = new ChessPosition(row - 2, col);
+                    if (board.getPiece(twoSpace) == null) {
+                        moves.add(new ChessMove(position, twoSpace, null));
+                    }
+                }
+            }
+            // diagonal attacks
+            ChessPosition diagonalRight = new ChessPosition(row - 1, col + 1);
+            ChessPosition diagonalLeft = new ChessPosition(row - 1, col - 1);
+            if ((board.getPiece(diagonalRight) != null) && (board.getPiece(diagonalRight).getTeamColor() == ChessGame.TeamColor.WHITE)) {
+                checkPawnPromotionMove(board, position, diagonalRight, moves);
+            }
+            if ((board.getPiece(diagonalLeft) != null) && (board.getPiece(diagonalLeft).getTeamColor() == ChessGame.TeamColor.WHITE)) {
+                checkPawnPromotionMove(board, position, diagonalLeft, moves);
             }
         }
     }
