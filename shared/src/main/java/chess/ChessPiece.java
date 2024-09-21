@@ -2,6 +2,7 @@ package chess;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -138,13 +139,17 @@ public class ChessPiece {
                 }
             }
             // diagonal attacks
-            ChessPosition diagonalRight = new ChessPosition(row + 1, col + 1);
-            ChessPosition diagonalLeft = new ChessPosition(row + 1, col - 1);
-            if ((board.getPiece(diagonalRight) != null) && (board.getPiece(diagonalRight).getTeamColor() == ChessGame.TeamColor.BLACK)) {
-                checkPawnPromotionMove(board, position, diagonalRight, moves);
+            if (col < 8) {
+                ChessPosition diagonalRight = new ChessPosition(row + 1, col + 1);
+                if ((board.getPiece(diagonalRight) != null) && (board.getPiece(diagonalRight).getTeamColor() == ChessGame.TeamColor.BLACK)) {
+                    checkPawnPromotionMove(board, position, diagonalRight, moves);
+                }
             }
-            if ((board.getPiece(diagonalLeft) != null) && (board.getPiece(diagonalLeft).getTeamColor() == ChessGame.TeamColor.BLACK)) {
-                checkPawnPromotionMove(board, position, diagonalLeft, moves);
+            if (col > 1) {
+                ChessPosition diagonalLeft = new ChessPosition(row + 1, col - 1);
+                if ((board.getPiece(diagonalLeft) != null) && (board.getPiece(diagonalLeft).getTeamColor() == ChessGame.TeamColor.BLACK)) {
+                    checkPawnPromotionMove(board, position, diagonalLeft, moves);
+                }
             }
         } else /* this.color == ChessGame.TeamColor.BLACK */ {
             // normal move
@@ -160,13 +165,17 @@ public class ChessPiece {
                 }
             }
             // diagonal attacks
-            ChessPosition diagonalRight = new ChessPosition(row - 1, col + 1);
-            ChessPosition diagonalLeft = new ChessPosition(row - 1, col - 1);
-            if ((board.getPiece(diagonalRight) != null) && (board.getPiece(diagonalRight).getTeamColor() == ChessGame.TeamColor.WHITE)) {
-                checkPawnPromotionMove(board, position, diagonalRight, moves);
+            if (col < 8) {
+                ChessPosition diagonalRight = new ChessPosition(row - 1, col + 1);
+                if ((board.getPiece(diagonalRight) != null) && (board.getPiece(diagonalRight).getTeamColor() == ChessGame.TeamColor.WHITE)) {
+                    checkPawnPromotionMove(board, position, diagonalRight, moves);
+                }
             }
-            if ((board.getPiece(diagonalLeft) != null) && (board.getPiece(diagonalLeft).getTeamColor() == ChessGame.TeamColor.WHITE)) {
-                checkPawnPromotionMove(board, position, diagonalLeft, moves);
+            if (col > 1) {
+                ChessPosition diagonalLeft = new ChessPosition(row - 1, col - 1);
+                if ((board.getPiece(diagonalLeft) != null) && (board.getPiece(diagonalLeft).getTeamColor() == ChessGame.TeamColor.WHITE)) {
+                    checkPawnPromotionMove(board, position, diagonalLeft, moves);
+                }
             }
         }
     }
@@ -440,5 +449,25 @@ public class ChessPiece {
         }
 
     }
-    
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "type=" + type +
+                ", color=" + color +
+                "}\n";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return type == that.type && color == that.color;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, color);
+    }
 }
