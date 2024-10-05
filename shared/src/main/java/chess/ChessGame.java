@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -41,7 +38,25 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null) { return null; }
+        Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> movesToRemove = new ArrayList<>();
+        for (ChessMove move : moves) {
+            System.out.print("Here's the move: " + move.toString());
+            ChessPosition endPosition = move.getEndPosition();
+            TeamColor color = piece.getTeamColor();
+//            if (board.getPiece(endPosition) != null && board.getPiece(endPosition).getTeamColor() == color)  { movesToRemove.add(move); }
+            board.addPiece(endPosition, piece);
+            board.addPiece(startPosition, null);
+            if (isInCheck(color)) { movesToRemove.add(move); System.out.println("We're in check"); }
+            board.addPiece(endPosition, null);
+            board.addPiece(startPosition, piece);
+        }
+        for (ChessMove move : movesToRemove) {
+            moves.remove(move);
+        }
+        return moves;
     }
 
     /**
@@ -104,9 +119,12 @@ public class ChessGame {
                 ChessPiece potentialPiece = board.getPiece(potentialPosition);
                 if ((potentialPiece != null) && (potentialPiece.getTeamColor() != teamColor)) { // piece is on opposite team
                     Collection<ChessMove> moves = potentialPiece.pieceMoves(board, potentialPosition);
-                    if (moves.contains(new ChessMove(potentialPosition, kingPosition, null))) return true;
+                    if (moves.contains(new ChessMove(potentialPosition, kingPosition, null))) {
+                        System.out.println("Here's the move: \npotentialPiece: " + potentialPiece + "potentialPosition: " + potentialPosition + "kingPosition: " + kingPosition);
+                        System.out.println("case 1"); return true;
+                    }
                     if (potentialPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                        if (moves.contains(new ChessMove(potentialPosition, kingPosition, ChessPiece.PieceType.QUEEN))) return true;
+                        if (moves.contains(new ChessMove(potentialPosition, kingPosition, ChessPiece.PieceType.QUEEN))) { System.out.println("case 1"); return true; }
                     }
                 }
             }
