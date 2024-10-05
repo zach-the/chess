@@ -12,8 +12,10 @@ public class ChessGame {
         this.currentTurn = TeamColor.WHITE;
     }
 
+    // returns the team whose turn it currently is
     public TeamColor getTeamTurn() { return currentTurn; }
 
+    // gives the current turn to the specified team
     public void setTeamTurn(TeamColor team) { currentTurn = team; }
 
     public enum TeamColor {
@@ -105,6 +107,7 @@ public class ChessGame {
         return false;
     }
 
+    // returns true if the team's king is in checkmate
     public boolean isInCheckmate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) return false;
 
@@ -117,6 +120,7 @@ public class ChessGame {
         return true;
     }
 
+    // returns true if the team's king is in stalemate
     public boolean isInStalemate(TeamColor teamColor) {
         if (isInCheck(teamColor)) return false;
 
@@ -128,8 +132,10 @@ public class ChessGame {
         return true;
     }
 
+    // sets the game's board equal to the board that has been passed in
     public void setBoard(ChessBoard board) { this.board = board; }
 
+    // returns the game's current board
     public ChessBoard getBoard() { return board; }
 
     @Override
