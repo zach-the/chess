@@ -46,7 +46,6 @@ public class ChessGame {
             System.out.print("\n\nHere's the move: " + move.toString() + "Here's the piece: " + piece);
             ChessPosition endPosition = move.getEndPosition();
             TeamColor color = piece.getTeamColor();
-//            if (board.getPiece(endPosition) != null && board.getPiece(endPosition).getTeamColor() == color)  { movesToRemove.add(move); }
             ChessPiece capturedPiece = board.getPiece(endPosition);
             board.addPiece(endPosition, piece);
             board.addPiece(startPosition, null);
@@ -54,9 +53,8 @@ public class ChessGame {
             board.addPiece(endPosition, capturedPiece);
             board.addPiece(startPosition, piece);
         }
-        for (ChessMove move : movesToRemove) {
+        for (ChessMove move : movesToRemove)
             moves.remove(move);
-        }
         return moves;
     }
 
@@ -133,21 +131,14 @@ public class ChessGame {
         return false;
     }
 
-    /**
-     * Determines if the given team is in checkmate
-     *
-     * @param teamColor which team to check for checkmate
-     * @return True if the specified team is in checkmate
-     */
     public boolean isInCheckmate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) return false;
 
         for (int i = 1; i <= 8; i++)
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
-                if (board.getPiece(position) != null && board.getPiece(position).getTeamColor() == teamColor) {
+                if (board.getPiece(position) != null && board.getPiece(position).getTeamColor() == teamColor)
                     if (!validMoves(position).isEmpty()) return false;
-                }
             }
         return true;
 
@@ -166,9 +157,8 @@ public class ChessGame {
         for (int i = 1; i <= 8; i++)
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
-                if (board.getPiece(position) != null && board.getPiece(position).getTeamColor() == teamColor) {
+                if (board.getPiece(position) != null && board.getPiece(position).getTeamColor() == teamColor)
                     if (!validMoves(position).isEmpty()) return false;
-                }
             }
         return true;
     }
