@@ -21,6 +21,7 @@ public class ChessGame {
         BLACK
     }
 
+    // returns a collection of all valid moves (accounting for check) of a given position
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
         if (piece == null) return null;
@@ -40,11 +41,13 @@ public class ChessGame {
         return moves;
     }
 
+    // returns true if a given move is in bounds
     private boolean inBounds(ChessPosition position) {
         return (    position.getRow() <= 8 && position.getColumn() <= 8
                 &&  position.getRow() >= 1 && position.getColumn() >= 1     );
     }
 
+    // makes the move given, has lots of error checking
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition start = move.getStartPosition();
         if (board.getPiece(start) == null) throw(new InvalidMoveException("Invalid Move: No piece at start position"));
@@ -56,6 +59,7 @@ public class ChessGame {
         if (color != getTeamTurn()) throw(new InvalidMoveException("Invalid Move: Cannot move out of turn"));
         if (!inBounds(end)) throw(new InvalidMoveException("Invalid Move: Move is out of bounds"));
 
+        // here's where the actual move happens
         ChessPiece piece = (move.getPromotionPiece() == null) ? board.getPiece(move.getStartPosition()) : new ChessPiece(color, move.getPromotionPiece());
         board.addPiece(end, piece);
         board.addPiece(start, null);
@@ -65,13 +69,14 @@ public class ChessGame {
             else this.currentTurn = TeamColor.BLACK;
             return;
         }
-        else {
+        else { // error check for if the move puts king in danger
             board.addPiece(start, originalPiece);
             board.addPiece(end, null);
             throw(new InvalidMoveException("Invalid Move: Move puts your king in check"));
         }
     }
 
+    // uses a for loop to find the king for a given team
     private ChessPosition findKing(TeamColor color) {
         for (int i = 1; i <= 8; i++)
             for (int j = 1; j <= 8; j++)
@@ -82,6 +87,7 @@ public class ChessGame {
         return null;
     }
 
+    // returns true if the team's king is in check
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = findKing(teamColor);
         for (int i = 1; i <= 8; i++) {
