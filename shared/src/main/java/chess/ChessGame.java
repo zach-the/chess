@@ -43,14 +43,15 @@ public class ChessGame {
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> movesToRemove = new ArrayList<>();
         for (ChessMove move : moves) {
-            System.out.print("Here's the move: " + move.toString());
+            System.out.print("\n\nHere's the move: " + move.toString() + "Here's the piece: " + piece);
             ChessPosition endPosition = move.getEndPosition();
             TeamColor color = piece.getTeamColor();
 //            if (board.getPiece(endPosition) != null && board.getPiece(endPosition).getTeamColor() == color)  { movesToRemove.add(move); }
+            ChessPiece capturedPiece = board.getPiece(endPosition);
             board.addPiece(endPosition, piece);
             board.addPiece(startPosition, null);
             if (isInCheck(color)) { movesToRemove.add(move); System.out.println("We're in check"); }
-            board.addPiece(endPosition, null);
+            board.addPiece(endPosition, capturedPiece);
             board.addPiece(startPosition, piece);
         }
         for (ChessMove move : movesToRemove) {
@@ -118,13 +119,13 @@ public class ChessGame {
                 ChessPosition potentialPosition = new ChessPosition(i,j);
                 ChessPiece potentialPiece = board.getPiece(potentialPosition);
                 if ((potentialPiece != null) && (potentialPiece.getTeamColor() != teamColor)) { // piece is on opposite team
+                    System.out.print("potentialPiece: " + potentialPiece + "potentialPosition: " + potentialPosition + "kingPosition: " + kingPosition);
                     Collection<ChessMove> moves = potentialPiece.pieceMoves(board, potentialPosition);
                     if (moves.contains(new ChessMove(potentialPosition, kingPosition, null))) {
-                        System.out.println("Here's the move: \npotentialPiece: " + potentialPiece + "potentialPosition: " + potentialPosition + "kingPosition: " + kingPosition);
                         System.out.println("case 1"); return true;
                     }
                     if (potentialPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                        if (moves.contains(new ChessMove(potentialPosition, kingPosition, ChessPiece.PieceType.QUEEN))) { System.out.println("case 1"); return true; }
+                        if (moves.contains(new ChessMove(potentialPosition, kingPosition, ChessPiece.PieceType.QUEEN))) { System.out.println("case 2"); return true; }
                     }
                 }
             }
@@ -139,7 +140,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return validMoves(findKing(teamColor)).isEmpty() && !isInCheck(teamColor);
     }
 
     /**
@@ -149,9 +150,7 @@ public class ChessGame {
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
-    public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
-    }
+    public boolean isInStalemate(TeamColor teamColor) { return validMoves(findKing(teamColor)).isEmpty() && !isInCheck(teamColor); }
 
     public void setBoard(ChessBoard board) { this.board = board; }
 
