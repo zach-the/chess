@@ -140,7 +140,17 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return validMoves(findKing(teamColor)).isEmpty() && !isInCheck(teamColor);
+        if (!isInCheck(teamColor)) return true;
+
+        for (int i = 1; i <= 8; i++)
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                if (board.getPiece(position) != null && board.getPiece(position).getTeamColor() == teamColor) {
+                    if (!validMoves(position).isEmpty()) return false;
+                }
+            }
+        return true;
+
     }
 
     /**
