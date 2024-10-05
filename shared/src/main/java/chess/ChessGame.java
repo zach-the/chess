@@ -2,12 +2,6 @@ package chess;
 
 import java.util.*;
 
-/**
- * For a class that can manage a chess game, making moves on a board
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
- */
 public class ChessGame {
     private ChessBoard board;
     private TeamColor currentTurn;
@@ -22,21 +16,11 @@ public class ChessGame {
 
     public void setTeamTurn(TeamColor team) { this.currentTurn = team; }
 
-    /**
-     * Enum identifying the 2 possible teams in a chess game
-     */
     public enum TeamColor {
         WHITE,
         BLACK
     }
 
-    /**
-     * Gets a valid moves for a piece at the given location
-     *
-     * @param startPosition the piece to get valid moves for
-     * @return Set of valid moves for requested piece, or null if no piece at
-     * startPosition
-     */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
         if (piece == null) { return null; }
@@ -58,16 +42,11 @@ public class ChessGame {
         return moves;
     }
 
-    /**
-     * Makes a move in a chess game
-     *
-     * @param move chess move to perform
-     * @throws InvalidMoveException if move is invalid
-     */
     private boolean inBounds(ChessPosition position) {
         return (    position.getRow() <= 8 && position.getColumn() <= 8
                 &&  position.getRow() >= 1 && position.getColumn() >= 1     );
     }
+
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition start = move.getStartPosition();
         if (board.getPiece(start) == null) throw(new InvalidMoveException("Invalid Move: No piece at start position"));
@@ -95,12 +74,6 @@ public class ChessGame {
         }
     }
 
-    /**
-     * Determines if the given team is in check
-     *
-     * @param teamColor which team to check for check
-     * @return True if the specified team is in check
-     */
     private ChessPosition findKing(TeamColor color) {
         for (int i = 1; i <= 8; i++)
             for (int j = 1; j <= 8; j++)
@@ -110,6 +83,7 @@ public class ChessGame {
                     return new ChessPosition(i,j);
         return null;
     }
+
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = findKing(teamColor);
         for (int i = 1; i <= 8; i++) {
@@ -143,14 +117,7 @@ public class ChessGame {
         return true;
 
     }
-
-    /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves
-     *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
-     */
+    
     public boolean isInStalemate(TeamColor teamColor) {
         if (isInCheck(teamColor)) return false;
 
