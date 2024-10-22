@@ -7,6 +7,7 @@ public class Main {
         System.out.println("♕ 240 Chess Server: " + piece);
 
         Server server = new Server();
+        System.out.println("I have no idea what is going on!!!");
         server.run(8080);
 
         System.out.println("Server started);");
