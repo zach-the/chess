@@ -1,5 +1,6 @@
 package service;
 
+import model.LoginRequest;
 import model.UserData;
 import dataaccess.DataAccess;
 
@@ -22,5 +23,9 @@ public class Service {
         dataAccess.deleteAuthData();
         dataAccess.deleteGameData();
         return Collections.emptyMap();
+    }
+
+    public Object userLogin(LoginRequest loginRequest) {
+        return dataAccess.userLogin(loginRequest);
     }
 }

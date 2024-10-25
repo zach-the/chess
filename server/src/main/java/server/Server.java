@@ -44,14 +44,12 @@ public class Server {
         var ret = service.addUser(user);
         if (ret.equals(new ErrorResponse("Error: bad request"))) {
             res.status(400);
-            return new Gson().toJson(ret);
         } else if (ret.equals(new ErrorResponse("Error: already taken"))){
             res.status(403);
-            return new Gson().toJson(ret);
         } else {
             res.status(200);
-            return new Gson().toJson(ret);
         }
+        return new Gson().toJson(ret);
     }
 
     private Object clearDB(Request req, Response res) {
@@ -60,6 +58,13 @@ public class Server {
     }
 
     private Object userLogin(Request req, Response res) {
-        var user = new Gson().fromJson(req.body(), LoginRequest.class);
+        var loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
+        var ret = service.userLogin(loginRequest);
+        if (ret.equals(new ErrorResponse("Error: unauthorized"))){
+            res.status(401);
+        }else {
+            res.status(200);
+        }
+        return new Gson().toJson(ret);
     }
 }
