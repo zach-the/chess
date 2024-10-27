@@ -22,12 +22,14 @@ public class Service {
         UserData result = this.dataAccess.getUser(user.username());
         if (user.username() == null || user.password() == null || user.email() == null) {
             return new ErrorResponse("Error: bad request");
-        } else if (result != null && result.username().equals(user.username())){
+        } /*else if (!user.email().contains("@")) {
+            return new ErrorResponse("Error: invalid email");
+        }*/ else if (result != null && result.username().equals(user.username())) {
             return new ErrorResponse("Error: already taken");
         } else {
             this.dataAccess.addUser(user);
             AuthData auth = new AuthData(user.username(), UUID.randomUUID().toString());
-            this.dataAccess.createAuth(auth);
+            this.dataAccess.addAuth(auth);
             return auth;
         }
     }

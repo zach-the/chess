@@ -48,8 +48,10 @@ public class Server {
         var ret = service.registerUser(user);
         if (ret.equals(new ErrorResponse("Error: bad request"))) {
             res.status(400);
-        } else if (ret.equals(new ErrorResponse("Error: already taken"))){
+        } else if (ret.equals(new ErrorResponse("Error: already taken"))) {
             res.status(403);
+        } else if (ret.equals(new ErrorResponse("Error: invalid email"))) {
+            res.status(400);
         } else {
             res.status(200);
         }

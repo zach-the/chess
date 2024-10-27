@@ -3,7 +3,7 @@ import model.*;
 
 public interface DataAccess {
     void addUser(UserData user);
-    void createAuth(AuthData auth);
+    void addAuth(AuthData auth);
     void deleteAuth(String authToken);
     UserData getUser(String username);
     AuthData getAuth(String authToken);

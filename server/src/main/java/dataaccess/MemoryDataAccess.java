@@ -23,7 +23,7 @@ public class MemoryDataAccess implements DataAccess{
     public UserData getUser(String username) {
         return users.get(username);
     }
-    public void createAuth(AuthData auth) {
+    public void addAuth(AuthData auth) {
         auths.put(auth.authToken(), auth);
     }
     public AuthData getAuth(String authToken) {
