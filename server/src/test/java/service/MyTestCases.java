@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class myTestCases {
+public class MyTestCases {
     private static Service service;
     private static UserData firstUser;
     private String firstUserAuth;
@@ -33,7 +33,7 @@ public class myTestCases {
 
     @Test
     @DisplayName("register User: Successs")
-    public void testRegisterUser_Success() {
+    public void testRegisterUserSuccess() {
         UserData user = new UserData("testUser", "password", "test@example.com");
         Object result = service.registerUser(user);
         assertNotNull(result);
@@ -43,7 +43,7 @@ public class myTestCases {
 
     @Test
     @DisplayName("registerUser: No Email Given")
-    public void testRegisterUser_NoEmail() {
+    public void testRegisterUserNoEmail() {
         UserData user = new UserData("secondUser", "secondPlaceisFirstLoser", null);
         Object result = service.registerUser(user);
         assertNotNull(result);
@@ -53,7 +53,7 @@ public class myTestCases {
 
     @Test
     @DisplayName("userLogin: Success")
-    public void testUserLogin_Success() {
+    public void testUserLoginSuccess() {
         LoginRequest loginRequest = new LoginRequest("firstUser", "secondPlaceisFirstLoser");
         Object result = service.userLogin(loginRequest);
         assertNotNull(result);
@@ -63,7 +63,7 @@ public class myTestCases {
 
     @Test
     @DisplayName("userLogin: Incorrect Password")
-    public void testUserLogin_IncorrectPassword() {
+    public void testUserLoginIncorrectPassword() {
         LoginRequest loginRequest = new LoginRequest("firstuser", "secondPlaceIsAcceptable");
         Object result = service.userLogin(loginRequest);
         assertNotNull(result);
@@ -73,7 +73,7 @@ public class myTestCases {
 
     @Test
     @DisplayName("userLogout: Success")
-    public void testUserLogout_Success() {
+    public void testUserLogoutSuccess() {
         Object result = service.userLogout(firstUserAuth);
         assertNotNull(result);
         assertEquals(Collections.emptyMap(), result);
@@ -81,7 +81,7 @@ public class myTestCases {
 
     @Test
     @DisplayName("userLogout: Invalid Token")
-    public void testuserLogout_InvalidToken() {
+    public void testuserLogoutInvalidToken() {
         String fakeToken = UUID.randomUUID().toString();
         Object result = service.userLogout(fakeToken);
         assertNotNull(result);
@@ -91,7 +91,7 @@ public class myTestCases {
 
     @Test
     @DisplayName("createGame: Success")
-    public void testCreateGame_Success() {
+    public void testCreateGameSuccess() {
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
         Object result = service.createGame(gameRequest);
         assertNotNull(result);
@@ -101,7 +101,7 @@ public class myTestCases {
 
     @Test
     @DisplayName("createGame: Invalid Token")
-    public void testCreateGame_InvalidToken() {
+    public void testCreateGameInvalidToken() {
         String fakeToken = UUID.randomUUID().toString();
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", fakeToken);
         Object result = service.createGame(gameRequest);
@@ -112,7 +112,7 @@ public class myTestCases {
 
     @Test
     @DisplayName("clearDB: Success")
-    public void testClearDB_Success() {
+    public void testClearDBSuccess() {
         LoginRequest loginRequest = new LoginRequest("firstUser", "secondPlaceisFirstLoser");
         Object result = service.userLogin(loginRequest);
         assertNotNull(result);
