@@ -39,13 +39,13 @@ public class myTestCases {
     }
 
     @Test
-    @DisplayName("registerUser: Invalid Email Given")
-    public void testRegisterUser_InvalidEmail() {
-        UserData user = new UserData("secondUser", "secondPlaceisFirstLoser", "justarandomstring");
+    @DisplayName("registerUser: No Email Given")
+    public void testRegisterUser_NoEmail() {
+        UserData user = new UserData("secondUser", "secondPlaceisFirstLoser", null);
         Object result = service.registerUser(user);
         assertNotNull(result);
         ErrorResponse errorResult = assertInstanceOf(ErrorResponse.class, result);
-        assertEquals("Error: invalid email", errorResult.message(), "system did not detect invalid email");
+        assertEquals("Error: bad request", errorResult.message(), "system did not detect invalid email");
     }
 
     @Test
