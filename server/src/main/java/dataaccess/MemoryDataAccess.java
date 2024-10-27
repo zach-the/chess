@@ -10,9 +10,6 @@ public class MemoryDataAccess implements DataAccess{
     final private HashMap<String, AuthData> auths = new HashMap<>();
     final private HashMap<Integer, GameData> games = new HashMap<>();
 
-    private void printAllAuths() { auths.forEach((key, value) -> System.out.println(key + " " + value)); }
-    private void printAllGames() { games.forEach((key, value) -> System.out.println(key + " " + value.gameID())); }
-
     // USER FUNCTIONS
     public void addUser(UserData user) { users.put(user.username(), user); }
     public UserData getUser(String username) { return users.get(username); }
