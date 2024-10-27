@@ -104,18 +104,19 @@ public class ChessPiece {
         }
     }
 
+    private void pawnPromotionHelper(List<ChessMove> moves, ChessPosition position, ChessPosition endPosition) {
+        moves.add(new ChessMove(position, endPosition, PieceType.KNIGHT));
+        moves.add(new ChessMove(position, endPosition, PieceType.QUEEN));
+        moves.add(new ChessMove(position, endPosition, PieceType.ROOK));
+        moves.add(new ChessMove(position, endPosition, PieceType.BISHOP));
+    }
+
     private void checkPawnPromotionMove(ChessBoard board, ChessPosition position, ChessPosition endPosition, List<ChessMove> moves) {
         // promotion cases below
         if ((endPosition.getRow() == 8) && (this.color == ChessGame.TeamColor.WHITE)) {
-            moves.add(new ChessMove(position, endPosition, PieceType.KNIGHT));
-            moves.add(new ChessMove(position, endPosition, PieceType.QUEEN));
-            moves.add(new ChessMove(position, endPosition, PieceType.ROOK));
-            moves.add(new ChessMove(position, endPosition, PieceType.BISHOP));
+            pawnPromotionHelper(moves, position, endPosition);
         } else if ((endPosition.getRow() == 1) && (this.color == ChessGame.TeamColor.BLACK)) {
-            moves.add(new ChessMove(position, endPosition, PieceType.KNIGHT));
-            moves.add(new ChessMove(position, endPosition, PieceType.QUEEN));
-            moves.add(new ChessMove(position, endPosition, PieceType.ROOK));
-            moves.add(new ChessMove(position, endPosition, PieceType.BISHOP));
+            pawnPromotionHelper(moves, position, endPosition);
         } else {
             moves.add(new ChessMove(position, endPosition, null)); // if not promotion case, then leave pawn as is
         }
