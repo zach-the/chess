@@ -3,6 +3,9 @@ import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.*;
 
+import java.util.Collections;
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class myTestCases {
@@ -71,11 +74,27 @@ public class myTestCases {
     @Test
     @DisplayName("userLogout: Success")
     public void testUserLogout_Success() {
+        Object result = service.userLogout(firstUserAuth);
+        assertNotNull(result);
+        assertEquals(Collections.emptyMap(), result);
+    }
 
+    @Test
+    @DisplayName("userLogout: Invalid Token")
+    public void testuserLogout_InvalidToken() {
+        String fakeToken = UUID.randomUUID().toString();
+        Object result = service.userLogout(fakeToken);
+        assertNotNull(result);
+        ErrorResponse errorResult = assertInstanceOf(ErrorResponse.class, result);
+        assertEquals("Error: unauthorized", errorResult.message());
+    }
+
+    @Test
+    @DisplayName("createGame: Success") {
+        
     }
 
     // FUNCTIONS THAT NEED TESTING:
-        // userLogout
         // createGame
         // clearDB
         // joinGame
