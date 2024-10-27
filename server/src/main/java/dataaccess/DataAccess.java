@@ -16,6 +16,4 @@ public interface DataAccess {
     void deleteUserData();
     void deleteAuthData();
     void deleteGameData();
-
-    Object userLogin(LoginRequest loginRequest);
 }

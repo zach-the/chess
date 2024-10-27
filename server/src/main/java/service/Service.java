@@ -33,7 +33,16 @@ public class Service {
     }
 
     public Object userLogin(LoginRequest loginRequest) {
-        return dataAccess.userLogin(loginRequest);
+        UserData user = dataAccess.getUser(loginRequest.username());
+        if (user != null) {
+            if (user.password().equals(loginRequest.password())){
+                String auth = UUID.randomUUID().toString();
+                AuthData authData = new AuthData(loginRequest.username(), auth);
+                dataAccess.addAuth(authData);
+                return new RegisterResponse(loginRequest.username(), auth);
+            }
+        }
+        return new ErrorResponse("Error: unauthorized");
     }
 
     public Object userLogout(String authToken) {

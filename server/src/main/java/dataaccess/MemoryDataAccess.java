@@ -47,21 +47,6 @@ public class MemoryDataAccess implements DataAccess{
     public void deleteAuthData(){ auths.clear(); }
     public void deleteGameData(){ games.clear(); }
 
-    public Object userLogin(LoginRequest loginRequest) {
-        if (users.get(loginRequest.username()) != null) {
-            if (Objects.equals(users.get(loginRequest.username()).password(), loginRequest.password())) {
-                String auth = UUID.randomUUID().toString();
-                auths.put(auth, new AuthData(loginRequest.username(), auth));
-                return new RegisterResponse(loginRequest.username(), auth);
-            }
-            else { // failure: wrong password
-                return new ErrorResponse("Error: unauthorized");
-            }
-        } else { // failure: wrong username
-            return new ErrorResponse("Error: unauthorized");
-        }
-    }
-
     public GameList listGames() {
         List<GameData> gameDataList = new ArrayList<>();
         for (Integer gameID : games.keySet()) {
