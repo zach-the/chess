@@ -1,13 +1,21 @@
 package dataaccess;
-import model.LoginRequest;
-import model.UserData;
+import model.*;
 
 public interface DataAccess {
-    Object addUser(UserData user);
+    void addUser(UserData user);
+    void createAuth(AuthData auth);
+    void deleteAuth(String authToken);
+    UserData getUser(String username);
+    AuthData getAuth(String authToken);
+    void createGame(Integer gameID, GameData gameData);
+    GameData getGame(Integer gameID);
+    void updateGame(Integer gameID, GameData gameData);
+    void printAllAuths();
+    GameList listGames();
 
-    Object deleteUserData();
-    Object deleteAuthData();
-    Object deleteGameData();
+    void deleteUserData();
+    void deleteAuthData();
+    void deleteGameData();
 
     Object userLogin(LoginRequest loginRequest);
 }

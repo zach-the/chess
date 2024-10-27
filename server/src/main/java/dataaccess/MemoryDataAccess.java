@@ -1,50 +1,83 @@
 package dataaccess;
 
-import model.RegisterResponse;
-import model.UserData;
-import model.ErrorResponse;
-import model.LoginRequest;
+import chess.ChessGame;
+import model.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class MemoryDataAccess implements DataAccess{
 
+    //////////////
+    // database //
+    //////////////
     final private HashMap<String, UserData> users = new HashMap<>();
+    final private HashMap<String, AuthData> auths = new HashMap<>();
+    final private HashMap<Integer, GameData> games = new HashMap<>();
 
-    public Object addUser(UserData user) {
-        user = new UserData(user.username(), user.password(), user.email());
-        if (user.username() == null || user.password() == null || user.email() == null) {
-            return new ErrorResponse("Error: bad request");
-        } else if (users.get(user.username()) == null) {
-            users.put(user.username(), user);
-            return new RegisterResponse(user.username(), UUID.randomUUID().toString());
-        } else {
-            return new ErrorResponse("Error: already taken");
-        }
+    //////////////////////
+    // MemoryDataAccess //
+    //////////////////////
+    public void printAllAuths() {
+        System.out.println("Printing all auths:");
+        auths.forEach((key, value) -> System.out.println(key + " " + value));
+    }
+    private void printAllGames() {
+        games.forEach((key, value) -> System.out.println(key + " " + value.gameID()));
+    }
+    public void addUser(UserData user) {
+        users.put(user.username(), user);
+    }
+    public UserData getUser(String username) {
+        return users.get(username);
+    }
+    public void createAuth(AuthData auth) {
+        auths.put(auth.authToken(), auth);
+    }
+    public AuthData getAuth(String authToken) {
+        return auths.get(authToken);
+    }
+    public void deleteAuth(String authToken) {
+        auths.remove(authToken);
+    }
+    public void createGame(Integer gameID, GameData gameData) {
+        games.putIfAbsent(gameID, gameData);
+    }
+    public GameData getGame(Integer gameID) {
+        printAllGames();
+        return games.get(gameID);
+    }
+    public void updateGame(Integer gameID, GameData game) {
+        games.replace(gameID, game);
     }
 
+
     // THE FOLLOWING FUNCTIONS
-    public Object deleteUserData(){ return Collections.emptyMap(); }
-    public Object deleteAuthData(){ return Collections.emptyMap(); }
-    public Object deleteGameData(){ return Collections.emptyMap(); }
+    public void deleteUserData(){ users.clear(); }
+    public void deleteAuthData(){ auths.clear(); }
+    public void deleteGameData(){ games.clear(); }
     // NEED ACTUAL IMPLEMENTATION
 
     public Object userLogin(LoginRequest loginRequest) {
         if (users.get(loginRequest.username()) != null) {
             if (Objects.equals(users.get(loginRequest.username()).password(), loginRequest.password())) {
-                return new RegisterResponse(loginRequest.username(), UUID.randomUUID().toString());
+                String auth = UUID.randomUUID().toString();
+                auths.put(auth, new AuthData(loginRequest.username(), auth));
+                return new RegisterResponse(loginRequest.username(), auth);
             }
-            else {
-                // failure: wrong password
+            else { // failure: wrong password
                 return new ErrorResponse("Error: unauthorized");
             }
-        } else {
-            // failure: wrong username
+        } else { // failure: wrong username
             return new ErrorResponse("Error: unauthorized");
         }
+    }
+
+    public GameList listGames() {
+        List<GameData> gameDataList = new ArrayList<>();
+        for (Integer gameID : games.keySet()) {
+            gameDataList.add(games.get(gameID));
+        }
+        return new GameList(gameDataList);
     }
 
 }
