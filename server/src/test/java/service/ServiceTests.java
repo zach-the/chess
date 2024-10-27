@@ -12,7 +12,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class MyTestCases {
+public class ServiceTests {
     private static Service service;
     private static UserData firstUser;
     private String firstUserAuth;
