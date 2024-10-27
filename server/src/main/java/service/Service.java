@@ -74,7 +74,6 @@ public class Service {
 
     public Object joinGame(JoinGameReqeust joinGameReqeust){
         AuthData auth = this.dataAccess.getAuth(joinGameReqeust.authToken());
-        this.dataAccess.printAllAuths();
         System.out.println("My authtoken: " + joinGameReqeust.authToken());
         if (auth == null) {
             System.out.println("this happened");

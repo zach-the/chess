@@ -90,13 +90,42 @@ public class myTestCases {
     }
 
     @Test
-    @DisplayName("createGame: Success") {
-        
+    @DisplayName("createGame: Success")
+    public void testCreateGame_Success() {
+        CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
+        Object result = service.createGame(gameRequest);
+        assertNotNull(result);
+        CreateGameResponse gameResult = assertInstanceOf(CreateGameResponse.class, result);
+        assertEquals(1, gameResult.gameID());
     }
 
-    // FUNCTIONS THAT NEED TESTING:
-        // createGame
-        // clearDB
-        // joinGame
-        // listGames
+    @Test
+    @DisplayName("createGame: Invalid Token")
+    public void testCreateGame_InvalidToken() {
+        String fakeToken = UUID.randomUUID().toString();
+        CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", fakeToken);
+        Object result = service.createGame(gameRequest);
+        assertNotNull(result);
+        ErrorResponse errorResult = assertInstanceOf(ErrorResponse.class, result);
+        assertEquals("Error: unauthorized", errorResult.message());
+    }
+
+    @Test
+    @DisplayName("clearDB: Success")
+    public void testClearDB_Success() {
+        LoginRequest loginRequest = new LoginRequest("firstUser", "secondPlaceisFirstLoser");
+        Object result = service.userLogin(loginRequest);
+        assertNotNull(result);
+        RegisterResponse regResult = assertInstanceOf(RegisterResponse.class, result);
+        assertEquals("firstUser", regResult.username(), "response did not give same username as user");
+
+        service.clearDB();
+
+        result = service.userLogin(loginRequest);
+        assertNotNull(result);
+        ErrorResponse errorResult = assertInstanceOf(ErrorResponse.class, result);
+        assertEquals("Error: unauthorized", errorResult.message(), "response did not give same username as user");
+    }
+
+
 }

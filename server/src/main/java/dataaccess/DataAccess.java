@@ -10,7 +10,6 @@ public interface DataAccess {
     void createGame(Integer gameID, GameData gameData);
     GameData getGame(Integer gameID);
     void updateGame(Integer gameID, GameData gameData);
-    void printAllAuths();
     GameList listGames();
 
     void deleteUserData();
