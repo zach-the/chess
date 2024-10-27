@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MyTestCases {
     private static Service service;
     private static UserData firstUser;
@@ -35,6 +36,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(1)
     @DisplayName("register User: Successs")
     public void testRegisterUserSuccess() {
         UserData user = new UserData("testUser", "password", "test@example.com");
@@ -45,6 +47,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(2)
     @DisplayName("registerUser: No Email Given")
     public void testRegisterUserNoEmail() {
         UserData user = new UserData("secondUser", "secondPlaceisFirstLoser", null);
@@ -55,6 +58,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(3)
     @DisplayName("userLogin: Success")
     public void testUserLoginSuccess() {
         LoginRequest loginRequest = new LoginRequest("firstUser", "secondPlaceisFirstLoser");
@@ -65,6 +69,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(4)
     @DisplayName("userLogin: Incorrect Password")
     public void testUserLoginIncorrectPassword() {
         LoginRequest loginRequest = new LoginRequest("firstuser", "secondPlaceIsAcceptable");
@@ -75,6 +80,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(5)
     @DisplayName("userLogout: Success")
     public void testUserLogoutSuccess() {
         Object result = service.userLogout(firstUserAuth);
@@ -83,6 +89,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(6)
     @DisplayName("userLogout: Invalid Token")
     public void testuserLogoutInvalidToken() {
         String fakeToken = UUID.randomUUID().toString();
@@ -93,6 +100,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(7)
     @DisplayName("createGame: Success")
     public void testCreateGameSuccess() {
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
@@ -103,6 +111,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(8)
     @DisplayName("createGame: Invalid Token")
     public void testCreateGameInvalidToken() {
         String fakeToken = UUID.randomUUID().toString();
@@ -114,6 +123,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(9)
     @DisplayName("clearDB: Success")
     public void testClearDBSuccess() {
         LoginRequest loginRequest = new LoginRequest("firstUser", "secondPlaceisFirstLoser");
@@ -131,6 +141,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(10)
     @DisplayName("joinGame: Success")
     public void testJoinGameSuccess() {
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
@@ -146,6 +157,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(11)
     @DisplayName("joinGame: No Game")
     public void testJoinGameNoGame() {
         JoinGameReqeust joinGameReqeust = new JoinGameReqeust(firstUserAuth, "WHITE", 1);
@@ -156,6 +168,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(12)
     @DisplayName("listGames: Success")
     public void testListGamesSuccess() {
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
@@ -181,6 +194,7 @@ public class MyTestCases {
     }
 
     @Test
+    @Order(13)
     @DisplayName("listGames: Invalid Token")
     public void testListGamesInvalidToken() {
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
@@ -206,7 +220,4 @@ public class MyTestCases {
         ErrorResponse errorResult = assertInstanceOf(ErrorResponse.class, list);
         assertEquals("Error: unauthorized", errorResult.message());
     }
-    // FUNCTIONS THAT NEED TESTING:
-    // listGames
-
 }
