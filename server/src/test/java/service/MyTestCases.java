@@ -1,9 +1,12 @@
 package service;
+import chess.ChessGame;
 import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -127,5 +130,83 @@ public class MyTestCases {
         assertEquals("Error: unauthorized", errorResult.message(), "response did not give same username as user");
     }
 
+    @Test
+    @DisplayName("joinGame: Success")
+    public void testJoinGameSuccess() {
+        CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
+        Object result = service.createGame(gameRequest);
+        assertNotNull(result);
+        CreateGameResponse gameResult = assertInstanceOf(CreateGameResponse.class, result);
+        assertEquals(1, gameResult.gameID());
+
+        JoinGameReqeust joinGameReqeust = new JoinGameReqeust(firstUserAuth, "WHITE", 1);
+        Object joinResult = service.joinGame(joinGameReqeust);
+        assertNotNull(joinResult);
+        assertEquals(Collections.emptyMap(), joinResult);
+    }
+
+    @Test
+    @DisplayName("joinGame: No Game")
+    public void testJoinGameNoGame() {
+        JoinGameReqeust joinGameReqeust = new JoinGameReqeust(firstUserAuth, "WHITE", 1);
+        Object result = service.joinGame(joinGameReqeust);
+        assertNotNull(result);
+        ErrorResponse errorResult = assertInstanceOf(ErrorResponse.class, result);
+        assertEquals("Error: bad request", errorResult.message());
+    }
+
+    @Test
+    @DisplayName("listGames: Success")
+    public void testListGamesSuccess() {
+        CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
+        Object result = service.createGame(gameRequest);
+        assertNotNull(result);
+        CreateGameResponse gameResult = assertInstanceOf(CreateGameResponse.class, result);
+        assertEquals(1, gameResult.gameID());
+
+        gameRequest = new CreateGameRequest("mySecondGame", firstUserAuth);
+        result = service.createGame(gameRequest);
+        assertNotNull(result);
+        gameResult = assertInstanceOf(CreateGameResponse.class, result);
+        assertEquals(2, gameResult.gameID());
+
+        List<GameData> gameData = new ArrayList<>();
+        gameData.add(new GameData(1, null, null, "myNewGame", new ChessGame()));
+        gameData.add(new GameData(2, null, null, "mySecondGame", new ChessGame()));
+        GameList gameList = new GameList(gameData);
+
+        Object list = service.listGames(firstUserAuth);
+        assertNotNull(list);
+        assertEquals(gameList, list);
+    }
+
+    @Test
+    @DisplayName("listGames: Invalid Token")
+    public void testListGamesInvalidToken() {
+        CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
+        Object result = service.createGame(gameRequest);
+        assertNotNull(result);
+        CreateGameResponse gameResult = assertInstanceOf(CreateGameResponse.class, result);
+        assertEquals(1, gameResult.gameID());
+
+        gameRequest = new CreateGameRequest("mySecondGame", firstUserAuth);
+        result = service.createGame(gameRequest);
+        assertNotNull(result);
+        gameResult = assertInstanceOf(CreateGameResponse.class, result);
+        assertEquals(2, gameResult.gameID());
+
+        List<GameData> gameData = new ArrayList<>();
+        gameData.add(new GameData(1, null, null, "myNewGame", new ChessGame()));
+        gameData.add(new GameData(2, null, null, "mySecondGame", new ChessGame()));
+        GameList gameList = new GameList(gameData);
+        String fakeToken = UUID.randomUUID().toString();
+
+        Object list = service.listGames(fakeToken);
+        assertNotNull(result);
+        ErrorResponse errorResult = assertInstanceOf(ErrorResponse.class, list);
+        assertEquals("Error: unauthorized", errorResult.message());
+    }
+    // FUNCTIONS THAT NEED TESTING:
+    // listGames
 
 }

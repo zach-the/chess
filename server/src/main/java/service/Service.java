@@ -65,18 +65,10 @@ public class Service {
         return new CreateGameResponse(gameCount);
     }
 
-    public Object clearDB() {
-        dataAccess.deleteUserData();
-        dataAccess.deleteAuthData();
-        dataAccess.deleteGameData();
-        return Collections.emptyMap();
-    }
-
     public Object joinGame(JoinGameReqeust joinGameReqeust){
         AuthData auth = this.dataAccess.getAuth(joinGameReqeust.authToken());
         System.out.println("My authtoken: " + joinGameReqeust.authToken());
         if (auth == null) {
-            System.out.println("this happened");
             return new ErrorResponse("Error: unauthorized");
         }
         GameData game = this.dataAccess.getGame(joinGameReqeust.gameID());
@@ -109,4 +101,11 @@ public class Service {
         return this.dataAccess.listGames();
     }
 
+    public Object clearDB() {
+        dataAccess.deleteUserData();
+        dataAccess.deleteAuthData();
+        dataAccess.deleteGameData();
+        gameCount = 0;
+        return Collections.emptyMap();
+    }
 }
