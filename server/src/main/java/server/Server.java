@@ -43,10 +43,6 @@ public class Server {
         Spark.awaitStop();
     }
 
-    //////////////////////
-    // ENTERING HANDLER //
-    //////////////////////
-
     private Object registerUser(Request req, Response res) {
         var user = new Gson().fromJson(req.body(), UserData.class);
         var ret = service.registerUser(user);

@@ -328,24 +328,6 @@ public class ChessPiece {
         if (((board.getPiece(endPosition)) != null) && (board.getPiece(endPosition).getTeamColor() == this.color)) { // can't capture own team's piece
             return;
         }
-//        for (int i = 1; i <= 8; i++) {
-//            for (int j = 1; j <= 8; j++) {
-//                ChessPosition placeToCheck = new ChessPosition(i,j); // checking all positions on board
-//                if ((board.getPiece(placeToCheck) != null) && (this.color != board.getPiece(placeToCheck).getTeamColor())) { // if the piece in question is on opposite team
-//                    // board.hide(endPosition);
-//                    Collection<ChessMove> movesToCheck = board.getPiece(placeToCheck).pieceMoves(board, placeToCheck);
-//                    if ((movesToCheck.contains(new ChessMove(placeToCheck, endPosition, null))) || (movesToCheck.contains(new ChessMove(placeToCheck, endPosition, PieceType.QUEEN)))){
-//                        board.unhide(endPosition);
-//                        System.out.println("it happened!");
-//                        System.out.print(endPosition.toString());
-//                        System.out.println(board.getPiece(placeToCheck).getPieceType().toString() + "\n");
-//                        return; // if any piece on the board could attack the king then we don't add the move
-//                    }
-//                    board.unhide(endPosition);
-//                }
-//                board.unhide(endPosition);
-//            }
-//        }
         moves.add(new ChessMove(position, endPosition, null)); // if we made it through all of that then it's a safe move
     }
 

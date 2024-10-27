@@ -10,15 +10,8 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private ChessPiece[][] squares = new ChessPiece[8][8];   
-//    private boolean[][] visible = new boolean[8][8];
-    public ChessBoard() {
-//        for (int i = 0; i < 8; i++) {
-//            for (int j = 0; j < 8; j++) {
-//                visible[i][j] = true;
-//            }
-//        }
-    }
+    private ChessPiece[][] squares = new ChessPiece[8][8];
+    public ChessBoard() {}
 
     /**
      * Adds a chess piece to the chessboard
@@ -29,14 +22,6 @@ public class ChessBoard {
     public void addPiece(ChessPosition position, ChessPiece piece) {
         squares[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
-
-    // these are used in the validateKingMove function in ChessPiece.java
-//    public void hide(ChessPosition position) {
-//        visible[position.getRow() - 1][position.getColumn() - 1] = false;
-//    }
-//    public void unhide(ChessPosition position) {
-//        visible[position.getRow() - 1][position.getColumn() - 1] = true;
-//    }
 
     /**
      * Gets a chess piece on the chessboard
@@ -99,47 +84,6 @@ public class ChessBoard {
         squares[7][4] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
         // queen
         squares[7][3] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
-
-
-
-//
-//        // WHITE TEAM
-//        // pawns
-//        for (int i = 0; i < 8; i++) {
-//            squares[i][1] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-//        }
-//        // rooks
-//        squares[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
-//        squares[7][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
-//        // knights
-//        squares[1][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
-//        squares[6][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
-//        // bishops
-//        squares[2][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
-//        squares[5][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
-//        // queen
-//        squares[3][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
-//        // king
-//        squares[4][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
-//
-//        // BLACK TEAM
-//        // black pawns
-//        for (int i = 0; i < 8; i++) {
-//            squares[i][6] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-//        }
-//        // rooks
-//        squares[0][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
-//        squares[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
-//        // knights
-//        squares[1][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
-//        squares[6][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
-//        // bishops
-//        squares[2][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
-//        squares[5][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
-//        // king
-//        squares[3][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
-//        // queen
-//        squares[4][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
     }
 
     @Override

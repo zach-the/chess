@@ -1,22 +1,15 @@
 package dataaccess;
 
-import chess.ChessGame;
 import model.*;
 
 import java.util.*;
 
 public class MemoryDataAccess implements DataAccess{
 
-    //////////////
-    // database //
-    //////////////
     final private HashMap<String, UserData> users = new HashMap<>();
     final private HashMap<String, AuthData> auths = new HashMap<>();
     final private HashMap<Integer, GameData> games = new HashMap<>();
 
-    //////////////////////
-    // MemoryDataAccess //
-    //////////////////////
     public void printAllAuths() {
         System.out.println("Printing all auths:");
         auths.forEach((key, value) -> System.out.println(key + " " + value));
@@ -50,12 +43,9 @@ public class MemoryDataAccess implements DataAccess{
         games.replace(gameID, game);
     }
 
-
-    // THE FOLLOWING FUNCTIONS
     public void deleteUserData(){ users.clear(); }
     public void deleteAuthData(){ auths.clear(); }
     public void deleteGameData(){ games.clear(); }
-    // NEED ACTUAL IMPLEMENTATION
 
     public Object userLogin(LoginRequest loginRequest) {
         if (users.get(loginRequest.username()) != null) {
