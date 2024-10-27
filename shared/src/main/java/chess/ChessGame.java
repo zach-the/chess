@@ -56,13 +56,17 @@ public class ChessGame {
         ChessPosition end = move.getEndPosition();
         ChessPiece originalPiece = board.getPiece(start);
         TeamColor color = originalPiece.getTeamColor();
-        if (board.getPiece(end) != null && board.getPiece(end).getTeamColor() == color) { throw(new InvalidMoveException("Invalid Move: Cannot capture own team's piece")); }
+        if (board.getPiece(end) != null && board.getPiece(end).getTeamColor() == color) {
+            throw(new InvalidMoveException("Invalid Move: Cannot capture own team's piece"));
+        }
         if (!originalPiece.pieceMoves(board, start).contains(move))  {throw(new InvalidMoveException("Invalid Move: This piece can't move there")); }
         if (color != getTeamTurn()) { throw(new InvalidMoveException("Invalid Move: Cannot move out of turn")); }
         if (!inBounds(end)) { throw(new InvalidMoveException("Invalid Move: Move is out of bounds")); }
 
         // here's where the actual move happens
-        ChessPiece piece = (move.getPromotionPiece() == null) ? board.getPiece(move.getStartPosition()) : new ChessPiece(color, move.getPromotionPiece());
+        ChessPiece piece = (move.getPromotionPiece() == null) ?
+                board.getPiece(move.getStartPosition()) :
+                new ChessPiece(color, move.getPromotionPiece());
         board.addPiece(end, piece);
         board.addPiece(start, null);
 
@@ -114,7 +118,9 @@ public class ChessGame {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
-                if (board.getPiece(position) != null && board.getPiece(position).getTeamColor() == teamColor && !validMoves(position).isEmpty()) { return false; }
+                if (board.getPiece(position) != null && board.getPiece(position).getTeamColor() == teamColor && !validMoves(position).isEmpty()) {
+                    return false;
+                }
             }
         }
         return true;
