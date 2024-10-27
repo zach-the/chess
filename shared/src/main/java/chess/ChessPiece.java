@@ -318,64 +318,9 @@ public class ChessPiece {
         int row = position.getRow();
         int col = position.getColumn();
 
-        // looking up
-        if (row < 8) {
-            for (int j = row + 1; j <= 8; j++) {
-                ChessPosition endPosition = new ChessPosition(j, col);
-                if (validateMoveAndStop(board, position, endPosition, moves)) { break; }
-            }
-        }
-        // looking down
-        if (row > 1) {
-            for (int j = row - 1; j >= 1; j--) {
-                ChessPosition endPosition = new ChessPosition(j, col);
-                if (validateMoveAndStop(board, position, endPosition, moves)) { break; }
-            }
-        }
-        // looking left
-        if (col > 1) {
-            for (int i = col - 1; i >= 1; i--) {
-                ChessPosition endPosition = new ChessPosition(row, i);
-                if (validateMoveAndStop(board, position, endPosition, moves)) {
-                    break;
-                }
-            }
-        }
-        // looking right
-        if (col < 8) {
-            for (int i = col + 1; i <= 8; i++) {
-                ChessPosition endPosition = new ChessPosition(row, i);
-                if (validateMoveAndStop(board, position, endPosition, moves)) { break; }
-            }
-        }
-        // looking up and right
-        if (row < 8 && col < 8) {
-            for (int k = 1; Math.max(row, col) + k <= 8; k++) {
-                ChessPosition endPosition = new ChessPosition(row + k, col + k);
-                if (validateMoveAndStop(board, position, endPosition, moves)) { break; }
-            }
-        }
-        // looking down and right
-        if (row > 1 && col < 8) {
-            for (int k = 1; (row - k >= 1) && (col + k <= 8); k++) {
-                ChessPosition endPosition = new ChessPosition(row - k, col + k);
-                if (validateMoveAndStop(board, position, endPosition, moves)) { break; }
-            }
-        }
-        // looking up and left
-        if (row < 8 && col > 1) {
-            for (int k = 1; (row + k <= 8) && (col - k >= 1); k++) {
-                ChessPosition endPosition = new ChessPosition(row + k, col - k);
-                if (validateMoveAndStop(board, position, endPosition, moves)) { break; }
-            }
-        }
-        // looking down and left
-        if (row > 1 && col > 1) {
-            for (int k = 1; Math.min(row, col) - k >= 1; k++) {
-                ChessPosition endPosition = new ChessPosition(row - k, col - k);
-                if (validateMoveAndStop(board, position, endPosition, moves)) { break; }
-            }
-        }
+        addRookMoves(board, position, moves);
+        addBishopMoves(board, position, moves);
+
     }
 
     private void validateKingMove(ChessBoard board, ChessPosition position, ChessPosition endPosition, List<ChessMove> moves) {
