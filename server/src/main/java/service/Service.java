@@ -6,6 +6,7 @@ import exception.ResponseException;
 import model.*;
 
 import dataaccess.DataAccess;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -28,7 +29,8 @@ public class Service {
             } else if (result != null && result.username().equals(user.username())) {
                 return new ErrorResponse("Error: already taken");
             } else {
-                this.dataAccess.addUser(user);
+                UserData hashedUser = new UserData(user.username(), BCrypt.hashpw(user.password(), BCrypt.gensalt()), user.email());
+                this.dataAccess.addUser(hashedUser);
                 AuthData auth = new AuthData(user.username(), UUID.randomUUID().toString());
                 this.dataAccess.addAuth(auth);
                 return auth;
@@ -48,7 +50,7 @@ public class Service {
     public Object userLogin(LoginRequest loginRequest) throws DataAccessException {
         UserData user = dataAccess.getUser(loginRequest.username());
         if (user != null) {
-            if (user.password().equals(loginRequest.password())){
+            if (BCrypt.checkpw(loginRequest.password(), user.password())){
                 String auth = UUID.randomUUID().toString();
                 AuthData authData = new AuthData(loginRequest.username(), auth);
                 dataAccess.addAuth(authData);
