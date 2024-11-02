@@ -1,6 +1,8 @@
 package passoff.server;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
+import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import server.Server;
@@ -10,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
-a
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StandardAPITests {
 
@@ -31,7 +33,7 @@ public class StandardAPITests {
     }
 
     @BeforeAll
-    public static void init() {
+    public static void init() throws ResponseException, DataAccessException {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
@@ -49,7 +51,7 @@ public class StandardAPITests {
     public void setup() {
         serverFacade.clear();
 
-        //one user already logged in
+        //one user already logged inSEL
         TestAuthResult regResult = serverFacade.register(existingUser);
         existingAuth = regResult.getAuthToken();
     }
