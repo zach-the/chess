@@ -1,6 +1,7 @@
 package service;
 import chess.ChessGame;
 import dataaccess.*;
+import exception.ResponseException;
 import model.*;
 import org.junit.jupiter.api.*;
 
@@ -25,7 +26,7 @@ public class ServiceTests {
     }
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws ResponseException, DataAccessException {
         service.clearDB();
 
         Object result = service.registerUser(firstUser);
@@ -38,7 +39,7 @@ public class ServiceTests {
     @Test
     @Order(1)
     @DisplayName("register User: Successs")
-    public void testRegisterUserSuccess() {
+    public void testRegisterUserSuccess() throws ResponseException, DataAccessException {
         UserData user = new UserData("testUser", "password", "test@example.com");
         Object result = service.registerUser(user);
         assertNotNull(result);
@@ -49,7 +50,7 @@ public class ServiceTests {
     @Test
     @Order(2)
     @DisplayName("registerUser: No Email Given")
-    public void testRegisterUserNoEmail() {
+    public void testRegisterUserNoEmail() throws ResponseException, DataAccessException {
         UserData user = new UserData("secondUser", "secondPlaceisFirstLoser", null);
         Object result = service.registerUser(user);
         assertNotNull(result);
@@ -60,7 +61,7 @@ public class ServiceTests {
     @Test
     @Order(3)
     @DisplayName("userLogin: Success")
-    public void testUserLoginSuccess() {
+    public void testUserLoginSuccess() throws DataAccessException {
         LoginRequest loginRequest = new LoginRequest("firstUser", "secondPlaceisFirstLoser");
         Object result = service.userLogin(loginRequest);
         assertNotNull(result);
@@ -71,7 +72,7 @@ public class ServiceTests {
     @Test
     @Order(4)
     @DisplayName("userLogin: Incorrect Password")
-    public void testUserLoginIncorrectPassword() {
+    public void testUserLoginIncorrectPassword() throws DataAccessException {
         LoginRequest loginRequest = new LoginRequest("firstuser", "secondPlaceIsAcceptable");
         Object result = service.userLogin(loginRequest);
         assertNotNull(result);
@@ -82,7 +83,7 @@ public class ServiceTests {
     @Test
     @Order(5)
     @DisplayName("userLogout: Success")
-    public void testUserLogoutSuccess() {
+    public void testUserLogoutSuccess() throws DataAccessException {
         Object result = service.userLogout(firstUserAuth);
         assertNotNull(result);
         assertEquals(Collections.emptyMap(), result);
@@ -91,7 +92,7 @@ public class ServiceTests {
     @Test
     @Order(6)
     @DisplayName("userLogout: Invalid Token")
-    public void testuserLogoutInvalidToken() {
+    public void testuserLogoutInvalidToken() throws DataAccessException {
         String fakeToken = UUID.randomUUID().toString();
         Object result = service.userLogout(fakeToken);
         assertNotNull(result);
@@ -102,7 +103,7 @@ public class ServiceTests {
     @Test
     @Order(7)
     @DisplayName("createGame: Success")
-    public void testCreateGameSuccess() {
+    public void testCreateGameSuccess() throws DataAccessException {
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
         Object result = service.createGame(gameRequest);
         assertNotNull(result);
@@ -113,7 +114,7 @@ public class ServiceTests {
     @Test
     @Order(8)
     @DisplayName("createGame: Invalid Token")
-    public void testCreateGameInvalidToken() {
+    public void testCreateGameInvalidToken() throws DataAccessException {
         String fakeToken = UUID.randomUUID().toString();
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", fakeToken);
         Object result = service.createGame(gameRequest);
@@ -125,7 +126,7 @@ public class ServiceTests {
     @Test
     @Order(9)
     @DisplayName("clearDB: Success")
-    public void testClearDBSuccess() {
+    public void testClearDBSuccess() throws DataAccessException {
         LoginRequest loginRequest = new LoginRequest("firstUser", "secondPlaceisFirstLoser");
         Object result = service.userLogin(loginRequest);
         assertNotNull(result);
@@ -143,7 +144,7 @@ public class ServiceTests {
     @Test
     @Order(10)
     @DisplayName("joinGame: Success")
-    public void testJoinGameSuccess() {
+    public void testJoinGameSuccess() throws DataAccessException {
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
         Object result = service.createGame(gameRequest);
         assertNotNull(result);
@@ -159,7 +160,7 @@ public class ServiceTests {
     @Test
     @Order(11)
     @DisplayName("joinGame: No Game")
-    public void testJoinGameNoGame() {
+    public void testJoinGameNoGame() throws DataAccessException {
         JoinGameReqeust joinGameReqeust = new JoinGameReqeust(firstUserAuth, "WHITE", 1);
         Object result = service.joinGame(joinGameReqeust);
         assertNotNull(result);
@@ -170,7 +171,7 @@ public class ServiceTests {
     @Test
     @Order(12)
     @DisplayName("listGames: Success")
-    public void testListGamesSuccess() {
+    public void testListGamesSuccess() throws DataAccessException {
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
         Object result = service.createGame(gameRequest);
         assertNotNull(result);
@@ -196,7 +197,7 @@ public class ServiceTests {
     @Test
     @Order(13)
     @DisplayName("listGames: Invalid Token")
-    public void testListGamesInvalidToken() {
+    public void testListGamesInvalidToken() throws DataAccessException {
         CreateGameRequest gameRequest = new CreateGameRequest("myNewGame", firstUserAuth);
         Object result = service.createGame(gameRequest);
         assertNotNull(result);
