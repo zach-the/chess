@@ -14,10 +14,19 @@ import java.util.SequencedMap;
 
 
 public class Server {
-    DataAccess dataAccess = new MySQLDataAccess();
+    DataAccess dataAccess;
+
+    {
+        try {
+            dataAccess = new MySQLDataAccess();
+        } catch (ResponseException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final Service service = new Service(dataAccess);
 
-    public Server() throws ResponseException, DataAccessException {
+    public Server() {
     }
 
     public int run(int desiredPort) {
