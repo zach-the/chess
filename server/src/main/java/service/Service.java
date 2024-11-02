@@ -1,6 +1,8 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
+import exception.ResponseException;
 import model.*;
 
 import dataaccess.DataAccess;
@@ -18,21 +20,32 @@ public class Service {
     }
 
 
-    public Object registerUser(UserData user) {
-        UserData result = this.dataAccess.getUser(user.username());
-        if (user.username() == null || user.password() == null || user.email() == null) {
-            return new ErrorResponse("Error: bad request");
-        } else if (result != null && result.username().equals(user.username())) {
-            return new ErrorResponse("Error: already taken");
-        } else {
-            this.dataAccess.addUser(user);
-            AuthData auth = new AuthData(user.username(), UUID.randomUUID().toString());
-            this.dataAccess.addAuth(auth);
-            return auth;
+    public Object registerUser(UserData user) throws ResponseException, DataAccessException {
+        try {
+            UserData result = this.dataAccess.getUser(user.username());
+            if (user.username() == null || user.password() == null || user.email() == null) {
+                return new ErrorResponse("Error: bad request");
+            } else if (result != null && result.username().equals(user.username())) {
+                return new ErrorResponse("Error: already taken");
+            } else {
+                this.dataAccess.addUser(user);
+                AuthData auth = new AuthData(user.username(), UUID.randomUUID().toString());
+                this.dataAccess.addAuth(auth);
+                return auth;
+            }
         }
+        catch (DataAccessException e) {
+            if (e.toString().contains("Duplicate entry")) {
+                return new ErrorResponse("Error: already taken");
+            }
+            else {
+                throw new DataAccessException(e.toString());
+            }
+        }
+
     }
 
-    public Object userLogin(LoginRequest loginRequest) {
+    public Object userLogin(LoginRequest loginRequest) throws DataAccessException {
         UserData user = dataAccess.getUser(loginRequest.username());
         if (user != null) {
             if (user.password().equals(loginRequest.password())){
@@ -45,7 +58,7 @@ public class Service {
         return new ErrorResponse("Error: unauthorized");
     }
 
-    public Object userLogout(String authToken) {
+    public Object userLogout(String authToken) throws DataAccessException {
         AuthData auth = this.dataAccess.getAuth(authToken);
         if (auth == null || !auth.authToken().equals(authToken)) {
             return new ErrorResponse("Error: unauthorized");
@@ -55,7 +68,7 @@ public class Service {
         }
     }
 
-    public Object createGame(CreateGameRequest gameRequest) {
+    public Object createGame(CreateGameRequest gameRequest) throws DataAccessException {
         AuthData auth = this.dataAccess.getAuth(gameRequest.authToken());
         if (auth == null) {
             return new ErrorResponse("Error: unauthorized");
@@ -65,9 +78,8 @@ public class Service {
         return new CreateGameResponse(gameCount);
     }
 
-    public Object joinGame(JoinGameReqeust joinGameReqeust){
+    public Object joinGame(JoinGameReqeust joinGameReqeust) throws DataAccessException {
         AuthData auth = this.dataAccess.getAuth(joinGameReqeust.authToken());
-        System.out.println("My authtoken: " + joinGameReqeust.authToken());
         if (auth == null) {
             return new ErrorResponse("Error: unauthorized");
         }
@@ -93,7 +105,7 @@ public class Service {
         return Collections.emptyMap();
     }
 
-    public Object listGames(String authToken) {
+    public Object listGames(String authToken) throws DataAccessException {
         AuthData auth = this.dataAccess.getAuth(authToken);
         if (auth == null) {
             return new ErrorResponse("Error: unauthorized");
@@ -101,7 +113,7 @@ public class Service {
         return this.dataAccess.listGames();
     }
 
-    public Object clearDB() {
+    public Object clearDB() throws DataAccessException {
         dataAccess.deleteUserData();
         dataAccess.deleteAuthData();
         dataAccess.deleteGameData();
