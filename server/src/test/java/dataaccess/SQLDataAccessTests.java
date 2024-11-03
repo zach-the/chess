@@ -159,9 +159,9 @@ public class SQLDataAccessTests {
     @Test
     @DisplayName("getGame Positive")
     public void getGamePositiveTest() throws ResponseException, DataAccessException {
-        GameData newGame = new GameData(1, null, null, "game", new ChessGame());
-        dataAccess.createGame(1, newGame);
-        assert(dataAccess.getGame(1).equals(newGame));
+        GameData wackyGame = new GameData(1, "black", "white", "very very strange strangeness", new ChessGame());
+        dataAccess.createGame(1, wackyGame);
+        assert(dataAccess.getGame(1).equals(wackyGame));
     }
 
     @Test
