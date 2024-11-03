@@ -83,12 +83,12 @@ public class SQLDataAccessTests {
     @Test
     @DisplayName("deleteAuth Positive")
     public void deleteAuthPositiveTest() throws ResponseException, DataAccessException {
-        String token = UUID.randomUUID().toString();
-        AuthData auth = new AuthData("existingName", token);
-        dataAccess.addAuth(auth);
-        assert(dataAccess.getAuth(token).username().equals("existingName"));
-        dataAccess.deleteAuth(token);
-        assert(dataAccess.getAuth(token) == null);
+        String wierdToken = UUID.randomUUID().toString();
+        AuthData strangeAuth = new AuthData("funName", wierdToken);
+        dataAccess.addAuth(strangeAuth);
+        assert(dataAccess.getAuth(wierdToken).username().equals("funName"));
+        dataAccess.deleteAuth(wierdToken);
+        assert(dataAccess.getAuth(wierdToken) == null);
     }
 
     @Test
@@ -122,10 +122,10 @@ public class SQLDataAccessTests {
     @Test
     @DisplayName("getAuth Positive")
     public void getAuthPositiveTest() throws ResponseException, DataAccessException {
-        String token = UUID.randomUUID().toString();
-        AuthData auth = new AuthData("existingName", token);
-        dataAccess.addAuth(auth);
-        assert(dataAccess.getAuth(token).username().equals("existingName"));
+        String randomToken = UUID.randomUUID().toString();
+        AuthData wackyAuth = new AuthData("fakeName", randomToken);
+        dataAccess.addAuth(wackyAuth);
+        assert(dataAccess.getAuth(randomToken).username().equals("fakeName"));
     }
 
     @Test
