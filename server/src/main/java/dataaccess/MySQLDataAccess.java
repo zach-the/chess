@@ -84,6 +84,9 @@ public class MySQLDataAccess implements DataAccess {
         }
     }
     public void createGame(Integer gameID, GameData gameData) throws DataAccessException {
+        if (getGame(gameID) != null) {
+            throw new DataAccessException("Duplicate game");
+        }
         try (var conn = DatabaseManager.getConnection()) {
             var statement = conn.prepareStatement("INSERT INTO games (id, json) VALUES (?, ?)");
             statement.setString(1, gameID.toString());
