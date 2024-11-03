@@ -75,7 +75,6 @@ public class SQLDataAccessTests {
         dataAccess.addAuth(auth);
         assert(dataAccess.getAuth(token).username().equals("existingName"));
 
-        String newToken = UUID.randomUUID().toString();
         AuthData newAuth = new AuthData("existingName", token);
         DataAccessException e = assertThrows(DataAccessException.class, () -> dataAccess.addAuth(newAuth));
         assertTrue(e.getMessage().contains("Duplicate entry"));

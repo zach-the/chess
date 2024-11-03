@@ -200,7 +200,7 @@ public class MySQLDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException ex) {
-            throw new ResponseException(500, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new ResponseException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 }
