@@ -6,6 +6,8 @@ import model.UserData;
 
 import java.io.*;
 import java.net.*;
+import java.util.Collections;
+import java.util.Map;
 
 public class ServerFacade {
     private final String serverUrl;
@@ -26,7 +28,11 @@ public class ServerFacade {
         return this.makeRequest("POST", "/session", loginRequest, RegisterResponse.class);
     }
 
-    
+    public Object userLogout(String authToken) throws ResponseException {
+        return this.makeRequest("DELETE", "/session", authToken, Map.class);
+    }
+
+//    public Object createGame(String gameName, )       HOW DO I ADD HEADERS???????
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
