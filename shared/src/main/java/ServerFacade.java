@@ -1,12 +1,9 @@
 import com.google.gson.Gson;
 import exception.ResponseException;
-import model.LoginRequest;
-import model.RegisterResponse;
-import model.UserData;
+import model.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.Collections;
 import java.util.Map;
 
 public class ServerFacade {
@@ -17,29 +14,41 @@ public class ServerFacade {
     }
 
     public Object registerUser(UserData user) throws ResponseException {
-        return this.makeRequest("POST", "/user", user, UserData.class);
+        return this.makeRequest("POST", "/user", user, UserData.class, "");
     }
 
     public void clearDB() throws ResponseException {
-        this.makeRequest("DELETE", "/db", null, null);
+        this.makeRequest("DELETE", "/db", null, null, "");
     }
 
     public Object userLogin(LoginRequest loginRequest) throws ResponseException {
-        return this.makeRequest("POST", "/session", loginRequest, RegisterResponse.class);
+        return this.makeRequest("POST", "/session", loginRequest, RegisterResponse.class, "");
     }
-
+    
     public Object userLogout(String authToken) throws ResponseException {
-        return this.makeRequest("DELETE", "/session", authToken, Map.class);
+        return this.makeRequest("DELETE", "/session", null, Map.class, authToken);
     }
 
-//    public Object createGame(String gameName, )       HOW DO I ADD HEADERS???????
+    public Object createGame(String gameName, String authToken) throws ResponseException {
+        return this.makeRequest("POST", "/game", gameName, CreateGameResponse.class, authToken);
+    }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    public Object joinGame(String gameID, String authToken) throws ResponseException {
+        return this.makeRequest("PUT", "/game", gameID, Map.class, authToken);
+    }
+
+    public Object listGames(String authToken) throws ResponseException {
+        return this.makeRequest("PUT", "/game", null, GameList.class, authToken);
+    }
+
+
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+            if(!authToken.isEmpty()) { http.addRequestProperty("authorization", authToken); }
 
             writeBody(request, http);
             http.connect();
