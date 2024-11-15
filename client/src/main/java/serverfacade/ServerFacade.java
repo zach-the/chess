@@ -24,7 +24,7 @@ public class ServerFacade {
     public Object userLogin(LoginRequest loginRequest) throws ResponseException {
         return this.makeRequest("POST", "/session", loginRequest, RegisterResponse.class, "");
     }
-    
+
     public Object userLogout(String authToken) throws ResponseException {
         return this.makeRequest("DELETE", "/session", null, Map.class, authToken);
     }
@@ -38,9 +38,8 @@ public class ServerFacade {
     }
 
     public Object listGames(String authToken) throws ResponseException {
-        return this.makeRequest("PUT", "/game", null, GameList.class, authToken);
+        return this.makeRequest("GET", "/game", null, GameList.class, authToken);
     }
-
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
@@ -48,6 +47,7 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+
             if(!authToken.isEmpty()) { http.addRequestProperty("authorization", authToken); }
 
             writeBody(request, http);
