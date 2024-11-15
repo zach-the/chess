@@ -26,7 +26,9 @@ public class PreloginUI {
 
             try {
                 result = eval(line);
-                System.out.print(EscapeSequences.BLUE + result);
+                if (!result.equals("Logging Out...") && !result.equals("quit")) {
+                    System.out.print(EscapeSequences.BLUE + result);
+                }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(EscapeSequences.RED + msg + EscapeSequences.RESET);
@@ -62,8 +64,7 @@ public class PreloginUI {
             Object ret = server.userLogin(loginRequest);
             if (ret.getClass() == RegisterResponse.class) {
                 System.out.println(EscapeSequences.GREEN + "Logged in as " + ((RegisterResponse) ret).username());
-                new LoggedinUI(server, ((RegisterResponse) ret).username(), ((RegisterResponse) ret).authToken()).repl();
-                return "";
+                return new LoggedinUI(server, ((RegisterResponse) ret).username(), ((RegisterResponse) ret).authToken()).repl();
             }
 
         }
@@ -75,8 +76,7 @@ public class PreloginUI {
             UserData user = new UserData(params[0], params[1], params[2]);
             var ret = server.registerUser(user);
             System.out.println(EscapeSequences.GREEN + "Logged in as " + ((RegisterResponse) ret).username());
-            new LoggedinUI(server, ((RegisterResponse) ret).username(), ((RegisterResponse) ret).authToken()).repl();
-            return "";
+            return new LoggedinUI(server, ((RegisterResponse) ret).username(), ((RegisterResponse) ret).authToken()).repl();
         }
         return EscapeSequences.RED + "This command requires 3 arguments\n" + EscapeSequences.RESET;
     }
