@@ -8,6 +8,7 @@ import model.*;
 import dataaccess.DataAccess;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -16,8 +17,11 @@ public class Service {
     private final DataAccess dataAccess;
     int gameCount = 0;
 
-    public Service(DataAccess dataAccess) {
+    public Service(DataAccess dataAccess) throws DataAccessException {
         this.dataAccess = dataAccess;
+        this.dataAccess.deleteAuthData();
+        this.dataAccess.deleteUserData();
+        this.dataAccess.deleteGameData();
     }
 
 
@@ -27,13 +31,15 @@ public class Service {
             if (user.username() == null || user.password() == null || user.email() == null) {
                 return new ErrorResponse("Error: bad request");
             } else if (result != null && result.username().equals(user.username())) {
+                System.out.println("THIS HAPPENED: " + result.username() + " " + user.username());
                 return new ErrorResponse("Error: already taken");
             } else {
                 UserData hashedUser = new UserData(user.username(), BCrypt.hashpw(user.password(), BCrypt.gensalt()), user.email());
                 this.dataAccess.addUser(hashedUser);
-                AuthData auth = new AuthData(user.username(), UUID.randomUUID().toString());
-                this.dataAccess.addAuth(auth);
-                return auth;
+                String auth = UUID.randomUUID().toString();
+                AuthData authData = new AuthData(user.username(), auth);
+                this.dataAccess.addAuth(authData);
+                return new RegisterResponse(user.username(), auth);
             }
         }
         catch (DataAccessException e) {
@@ -61,7 +67,12 @@ public class Service {
     }
 
     public Object userLogout(String authToken) throws DataAccessException {
-        AuthData auth = this.dataAccess.getAuth(authToken);
+        AuthData auth = null;
+        try {
+            auth = this.dataAccess.getAuth(authToken);
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
         if (auth == null || !auth.authToken().equals(authToken)) {
             return new ErrorResponse("Error: unauthorized");
         } else {
@@ -71,7 +82,12 @@ public class Service {
     }
 
     public Object createGame(CreateGameRequest gameRequest) throws DataAccessException {
-        AuthData auth = this.dataAccess.getAuth(gameRequest.authToken());
+        AuthData auth = null;
+        try {
+            auth = this.dataAccess.getAuth(gameRequest.authToken());
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
         if (auth == null) {
             return new ErrorResponse("Error: unauthorized");
         }
@@ -81,23 +97,28 @@ public class Service {
     }
 
     public Object joinGame(JoinGameReqeust joinGameReqeust) throws DataAccessException {
-        AuthData auth = this.dataAccess.getAuth(joinGameReqeust.authToken());
-        if (auth == null) {
+        AuthData auth = null;
+        try {
+            auth = this.dataAccess.getAuth(joinGameReqeust.authToken());
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+        if (!auth.authToken().equals(joinGameReqeust.authToken())) {
             return new ErrorResponse("Error: unauthorized");
         }
         GameData game = this.dataAccess.getGame(joinGameReqeust.gameID());
         if (game == null || joinGameReqeust.playerColor() == null || joinGameReqeust.gameID() == null) {
             return new ErrorResponse("Error: bad request");
         }
-        if (joinGameReqeust.playerColor().equals("WHITE")) {
-            if (game.whiteUsername() == null) {
+        if (joinGameReqeust.playerColor().equals("WHITE") || joinGameReqeust.playerColor().equals("white")) {
+            if (game.whiteUsername() == null || game.whiteUsername().equals("null")) {
                 GameData newGame = new GameData(game.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game());
                 this.dataAccess.updateGame(joinGameReqeust.gameID(), newGame);
             } else {
                 return new ErrorResponse("Error: already taken");
             }
-        } else if (joinGameReqeust.playerColor().equals("BLACK")){
-            if (game.blackUsername() == null) {
+        } else if (joinGameReqeust.playerColor().equals("BLACK") || joinGameReqeust.playerColor().equals("black")) {
+            if (game.blackUsername() == null || game.blackUsername().equals("null")) {
                 GameData newGame = new GameData(game.gameID(), game.whiteUsername(), auth.username(), game.gameName(), game.game());
                 this.dataAccess.updateGame(joinGameReqeust.gameID(), newGame);
             } else {
@@ -108,7 +129,12 @@ public class Service {
     }
 
     public Object listGames(String authToken) throws DataAccessException {
-        AuthData auth = this.dataAccess.getAuth(authToken);
+        AuthData auth = null;
+        try {
+            auth = this.dataAccess.getAuth(authToken);
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
         if (auth == null) {
             return new ErrorResponse("Error: unauthorized");
         }
