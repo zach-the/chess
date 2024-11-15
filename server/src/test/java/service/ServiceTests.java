@@ -31,9 +31,9 @@ public class ServiceTests {
 
         Object result = service.registerUser(firstUser);
         assertNotNull(result);
-        AuthData authResult = assertInstanceOf(AuthData.class, result);
-        assertEquals("firstUser", authResult.username());
-        firstUserAuth = authResult.authToken();
+        RegisterResponse registerResponse = assertInstanceOf(RegisterResponse.class, result);
+        assertEquals("firstUser", registerResponse.username());
+        firstUserAuth = registerResponse.authToken();
     }
 
     @Test
@@ -43,8 +43,8 @@ public class ServiceTests {
         UserData user = new UserData("testUser", "password", "test@example.com");
         Object result = service.registerUser(user);
         assertNotNull(result);
-        AuthData authResult = assertInstanceOf(AuthData.class, result);
-        assertEquals("testUser", authResult.username(), "response did not give same username as user");
+        RegisterResponse registerResponse = assertInstanceOf(RegisterResponse.class, result);
+        assertEquals("testUser", registerResponse.username(), "response did not give same username as user");
     }
 
     @Test

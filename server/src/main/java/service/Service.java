@@ -20,13 +20,13 @@ public class Service {
     public Service(DataAccess dataAccess) {
         // this is the thing i tried to fix
         this.dataAccess = dataAccess;
-        try {
-            this.dataAccess.deleteAuthData();
-            this.dataAccess.deleteUserData();
-            this.dataAccess.deleteGameData();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            this.dataAccess.deleteAuthData();
+//            this.dataAccess.deleteUserData();
+//            this.dataAccess.deleteGameData();
+//        } catch (DataAccessException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
 
@@ -108,7 +108,7 @@ public class Service {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
-        if (!auth.authToken().equals(joinGameReqeust.authToken())) {
+        if (auth == null || !auth.authToken().equals(joinGameReqeust.authToken())) {
             return new ErrorResponse("Error: unauthorized");
         }
         GameData game = this.dataAccess.getGame(joinGameReqeust.gameID());
@@ -141,6 +141,7 @@ public class Service {
             throw new DataAccessException(e.getMessage());
         }
         if (auth == null) {
+            System.out.println("This is what happened");
             return new ErrorResponse("Error: unauthorized");
         }
         return this.dataAccess.listGames();
