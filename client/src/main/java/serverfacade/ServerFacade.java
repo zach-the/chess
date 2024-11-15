@@ -1,20 +1,24 @@
+package serverfacade;
+
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ServerFacade {
-    private final String serverUrl;
+    private final String serverURL;
 
     public ServerFacade(String url) {
-        serverUrl = url;
+        serverURL = url;
     }
 
     public Object registerUser(UserData user) throws ResponseException {
-        return this.makeRequest("POST", "/user", user, UserData.class, "");
+        return this.makeRequest("POST", "/user", user, RegisterResponse.class, "");
     }
 
     public void clearDB() throws ResponseException {
@@ -30,11 +34,16 @@ public class ServerFacade {
     }
 
     public Object createGame(String gameName, String authToken) throws ResponseException {
-        return this.makeRequest("POST", "/game", gameName, CreateGameResponse.class, authToken);
+        Map<String, String> request = new HashMap<>();
+        request.put("gameName", gameName);
+        return this.makeRequest("POST", "/game", request, CreateGameResponse.class, authToken);
     }
 
-    public Object joinGame(String gameID, String authToken) throws ResponseException {
-        return this.makeRequest("PUT", "/game", gameID, Map.class, authToken);
+    public Object joinGame(String gameID, String playerColor, String authToken) throws ResponseException {
+        Map<String, String> request = new HashMap<>();
+        request.put("gameID", gameID);
+        request.put("playerColor", playerColor);
+        return this.makeRequest("PUT", "/game", request, Map.class, authToken);
     }
 
     public Object listGames(String authToken) throws ResponseException {
@@ -43,7 +52,7 @@ public class ServerFacade {
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
-            URL url = (new URI(serverUrl + path)).toURL();
+            URL url = (new URI(serverURL + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
@@ -72,7 +81,7 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new ResponseException("failure: " + status);
+            throw new ResponseException("failure: " + status + "\n");
         }
     }
 
