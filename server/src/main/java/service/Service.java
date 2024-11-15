@@ -18,15 +18,7 @@ public class Service {
     int gameCount = 0;
 
     public Service(DataAccess dataAccess) {
-        // this is the thing i tried to fix
         this.dataAccess = dataAccess;
-//        try {
-//            this.dataAccess.deleteAuthData();
-//            this.dataAccess.deleteUserData();
-//            this.dataAccess.deleteGameData();
-//        } catch (DataAccessException e) {
-//            throw new RuntimeException(e);
-//        }
     }
 
 
