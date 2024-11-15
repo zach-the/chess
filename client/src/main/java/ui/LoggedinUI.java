@@ -75,7 +75,7 @@ public class LoggedinUI {
             }
         }
         else {
-            return EscapeSequences.RED + "This command requires 1 argument\n" + EscapeSequences.RESET;
+            return EscapeSequences.RED + "This command requires 1 argument: <NAME> \n" + EscapeSequences.RESET;
         }
         return "Failed to create game";
     }
@@ -131,7 +131,7 @@ public class LoggedinUI {
                 return EscapeSequences.RED + "I think this game doesn't exist\n" + EscapeSequences.RESET;
             }
         } else {
-            return EscapeSequences.RED + "This command requires 2 arguments\n" + EscapeSequences.RESET;
+            return EscapeSequences.RED + "This command requires 2 arguments: <ID> [WHITE|BLACK]\n" + EscapeSequences.RESET;
         }
     }
 

@@ -19,7 +19,7 @@ public class ServiceTests {
     private String firstUserAuth;
 
     @BeforeAll
-    public static void init() {
+    public static void init() throws DataAccessException {
         firstUser = new UserData("firstUser", "secondPlaceisFirstLoser", "winnersonly@victory.com");
         DataAccess dataAccess = new MemoryDataAccess();
         service = new Service(dataAccess);
