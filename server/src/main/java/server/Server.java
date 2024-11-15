@@ -26,7 +26,7 @@ public class Server {
 
     private final Service service = new Service(dataAccess);
 
-    public Server() throws DataAccessException {
+    public Server() {
     }
 
     public int run(int desiredPort) {

@@ -17,11 +17,15 @@ public class Service {
     private final DataAccess dataAccess;
     int gameCount = 0;
 
-    public Service(DataAccess dataAccess) throws DataAccessException {
+    public Service(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
-        this.dataAccess.deleteAuthData();
-        this.dataAccess.deleteUserData();
-        this.dataAccess.deleteGameData();
+        try {
+            this.dataAccess.deleteAuthData();
+            this.dataAccess.deleteUserData();
+            this.dataAccess.deleteGameData();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
