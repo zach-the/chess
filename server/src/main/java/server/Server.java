@@ -26,7 +26,7 @@ public class Server {
 
     private final Service service = new Service(dataAccess);
 
-    public Server() {
+    public Server() throws DataAccessException {
     }
 
     public int run(int desiredPort) {
@@ -59,6 +59,7 @@ public class Server {
         var user = new Gson().fromJson(req.body(), UserData.class);
         try {
             var ret = service.registerUser(user);
+            System.out.println("return type: " + ret.getClass());
             if (ret.equals(new ErrorResponse("Error: bad request"))) {
                 res.status(400);
             } else if (ret.equals(new ErrorResponse("Error: already taken"))) {
@@ -70,7 +71,7 @@ public class Server {
             }
             return new Gson().toJson(ret);
         } catch (DataAccessException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
             res.status(500);
             return new Gson().toJson(new ErrorResponse("Error: 500"));
         }
@@ -119,17 +120,23 @@ public class Server {
     private Object joinGame(Request req, Response res) throws DataAccessException {
         String authToken = req.headers("authorization");
         Object gameIDObject = (new Gson().fromJson(req.body(), Map.class)).get("gameID");
+
         int gameID;
         if (gameIDObject instanceof Double) {
             gameID = (int)Math.round((Double)gameIDObject);
         } else if (gameIDObject instanceof Integer) {
             gameID = (int)gameIDObject;
+        } else if (gameIDObject instanceof String){
+            gameID = Integer.parseInt((String)gameIDObject);
+            System.out.println(gameID);
         } else {
             gameID = 999;
-            System.out.println("Something went seriously wrong");
+            System.out.println("Something went wrong with getting gameID");
         }
         String playerColor = (String) (new Gson().fromJson(req.body(), Map.class)).get("playerColor");
-        JoinGameReqeust joinGameReqeust = new JoinGameReqeust(authToken, playerColor,gameID);
+        System.out.println(authToken + playerColor + gameIDObject);
+        System.out.println("here we are!!");
+        JoinGameReqeust joinGameReqeust = new JoinGameReqeust(authToken, playerColor, gameID);
         var ret = service.joinGame(joinGameReqeust);
         if (ret.equals(Collections.emptyMap())){
             res.status(200);
