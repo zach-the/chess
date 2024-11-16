@@ -74,7 +74,6 @@ public class PreloginUI {
                 System.out.println(EscapeSequences.GREEN + "Logged in as " + ((RegisterResponse) ret).username());
                 return new LoggedinUI(server, ((RegisterResponse) ret).username(), ((RegisterResponse) ret).authToken()).repl();
             }
-
         }
         return EscapeSequences.RED + "This command requires 2 arguments\n" + EscapeSequences.RESET;
     }
@@ -92,8 +91,9 @@ public class PreloginUI {
                 return EscapeSequences.RED + "Cannot register\n" + EscapeSequences.RESET;
             }
             if (ret != null) {
-                System.out.println(EscapeSequences.GREEN + "Logged in as " + ((RegisterResponse) ret).username());
-                return new LoggedinUI(server, ((RegisterResponse) ret).username(), ((RegisterResponse) ret).authToken()).repl();
+                RegisterResponse retInfo = (RegisterResponse) ret;
+                System.out.println(EscapeSequences.GREEN + "Logged in as " + retInfo.username());
+                return new LoggedinUI(server, retInfo.username(), retInfo.authToken()).repl();
             }
         }
         return EscapeSequences.RED + "This command requires 3 arguments\n" + EscapeSequences.RESET;
