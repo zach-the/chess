@@ -68,10 +68,9 @@ public class LoggedinUI {
 
     public String create(String... params) throws ResponseException {
         if (params.length==1) {
-            System.out.println("Creating game with name: " + params[0]);
             var ret = server.createGame(params[0], auth);
             if (ret.getClass()== CreateGameResponse.class) {
-                return "Game ID: " + ((CreateGameResponse) ret).gameID() + "\n";
+                return "Game ID: " + "Created game with name: " + params[0] + "\n";
             }
         }
         else {
@@ -118,7 +117,15 @@ public class LoggedinUI {
             if (!color.equals("black") && !color.equals("BLACK") && !color.equals("white") && !color.equals("WHITE")){
                 return EscapeSequences.RED + "Color must be BLACK or WHITE\n" + EscapeSequences.RESET;
             }
-            var ret = server.joinGame(params[0], color, auth);
+            Object ret;
+            try {
+                ret = server.joinGame(params[0], color, auth);
+            } catch (ResponseException e) {
+                if (e.getMessage().equals("failure: 403\n")) {
+                    return EscapeSequences.RED + "Cannot join game. Team taken\n" + EscapeSequences.RESET;
+                }
+                return EscapeSequences.RED + "Failed to join game\n" + EscapeSequences.RESET;
+            }
             if (ret!=Collections.emptyMap()) {
                 var tmp = server.listGames(auth);
                 int gameNum = this.gameNumbers.get(Integer.parseInt(params[0])) - 1;

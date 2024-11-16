@@ -49,7 +49,7 @@ public class ChessBoardDisplay {
 
     private static String getPieceString(ChessBoard board, int row, int col) {
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-        String background = ((row + col) % 2 == 0) ? WHITE_TILE : BLACK_TILE;
+        String background = ((row + col) % 2 == 0) ? BLACK_TILE : WHITE_TILE;
         if (piece!=null) {
             if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                 return WHITE_TEAM + background + " " + getPieceSymbol(piece) + " ";

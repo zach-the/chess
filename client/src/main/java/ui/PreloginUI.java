@@ -61,7 +61,15 @@ public class PreloginUI {
     public String login(String... params) throws ResponseException {
         if (params.length==2) {
             LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
-            Object ret = server.userLogin(loginRequest);
+            Object ret = null;
+            try {
+                ret = server.userLogin(loginRequest);
+            } catch (ResponseException e) {
+                if (e.getMessage().equals("failure: 401\n")){
+                    return EscapeSequences.RED + "Incorrect password\n" + EscapeSequences.RESET;
+                }
+                return EscapeSequences.RED + "Cannot login\n" + EscapeSequences.RESET;
+            }
             if (ret.getClass() == RegisterResponse.class) {
                 System.out.println(EscapeSequences.GREEN + "Logged in as " + ((RegisterResponse) ret).username());
                 return new LoggedinUI(server, ((RegisterResponse) ret).username(), ((RegisterResponse) ret).authToken()).repl();
@@ -74,9 +82,19 @@ public class PreloginUI {
     public String register(String... params) throws ResponseException {
         if (params.length==3) {
             UserData user = new UserData(params[0], params[1], params[2]);
-            var ret = server.registerUser(user);
-            System.out.println(EscapeSequences.GREEN + "Logged in as " + ((RegisterResponse) ret).username());
-            return new LoggedinUI(server, ((RegisterResponse) ret).username(), ((RegisterResponse) ret).authToken()).repl();
+            Object ret = null;
+            try {
+                ret = server.registerUser(user);
+            } catch (ResponseException e) {
+                if (e.getMessage().equals("failure: 403\n")){
+                    return EscapeSequences.RED + "Cannot register. Username already taken\n" + EscapeSequences.RESET;
+                }
+                return EscapeSequences.RED + "Cannot register\n" + EscapeSequences.RESET;
+            }
+            if (ret != null) {
+                System.out.println(EscapeSequences.GREEN + "Logged in as " + ((RegisterResponse) ret).username());
+                return new LoggedinUI(server, ((RegisterResponse) ret).username(), ((RegisterResponse) ret).authToken()).repl();
+            }
         }
         return EscapeSequences.RED + "This command requires 3 arguments\n" + EscapeSequences.RESET;
     }
