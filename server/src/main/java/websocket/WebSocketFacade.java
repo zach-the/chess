@@ -174,24 +174,24 @@ public class WebSocketFacade {
                 broadcast(authData.username(), msg, gameID, true);
             }
         } catch (InvalidMoveException e) {
-            stupidExceptionDuplicate(e, session);
+            if (e.getMessage().contains("out of")) {
+                String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: cannot move out of turn"));
+                session.getRemote().sendString(msg);
+            } else if (e.getMessage().contains("opposite")) {
+                String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: cannot move opposite team's pieces"));
+                session.getRemote().sendString(msg);
+            } else if (e.getMessage().contains("observer")) {
+                String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
+                session.getRemote().sendString(msg);
+            } else {
+                String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid move"));
+                session.getRemote().sendString(msg);
+            }
             System.out.println("INVALID MOVE");
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
-            String msg;
-            if (e.getMessage().contains("gameData")) {
-                System.out.println("gameData error");
-                System.out.println(e.getMessage());
-                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid gameID"));
-                session.getRemote().sendString(msg);
-            } else if (e.getMessage().contains("authData")) {
-                System.out.println("authData error");
-                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid authToken"));
-                session.getRemote().sendString(msg);
-            } else {
-                System.out.println(e.getMessage());
-            }
+            stupidExceptionDuplicate(e, session);
         }
     }
 
@@ -257,19 +257,7 @@ public class WebSocketFacade {
             broadcast(username, msg, gameID, false);
             connections.remove(session);
         } catch (Exception e) {
-            String msg;
-            if (e.getMessage().contains("gameData")) {
-                System.out.println("gameData error");
-                System.out.println(e.getMessage());
-                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid gameID"));
-                session.getRemote().sendString(msg);
-            } else if (e.getMessage().contains("authData")) {
-                System.out.println("authData error");
-                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid authToken"));
-                session.getRemote().sendString(msg);
-            } else {
-                System.out.println(e.getMessage());
-            }
+            stupidExceptionDuplicate(e, session);
         }
     }
 
