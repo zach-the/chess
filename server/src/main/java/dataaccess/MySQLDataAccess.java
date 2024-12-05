@@ -70,16 +70,16 @@ public class MySQLDataAccess implements DataAccess {
         }
     }
     public AuthData getAuth(String authToken) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            System.out.println("Printing all auths");
-            ResultSet set = conn.prepareStatement("SELECT * FROM auths").executeQuery();
-            while(set.next()) {
-                System.out.println(set.getString(1));
-                System.out.println(set.getString(2));
-            }
-        } catch (SQLException e) {
-            System.out.println("there was a problem with printing auths");
-        }
+//        try (var conn = DatabaseManager.getConnection()) {
+//            System.out.println("Printing all auths");
+//            ResultSet set = conn.prepareStatement("SELECT * FROM auths").executeQuery();
+//            while(set.next()) {
+//                System.out.println(set.getString(1));
+//                System.out.println(set.getString(2));
+//            }
+//        } catch (SQLException e) {
+//            System.out.println("there was a problem with printing auths");
+//        }
 
         try (var conn = DatabaseManager.getConnection()) {
             var statement = conn.prepareStatement("SELECT * FROM auths WHERE auth = ?");
@@ -109,29 +109,28 @@ public class MySQLDataAccess implements DataAccess {
         }
     }
     public GameData getGame(Integer gameID) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            System.out.println("Printing all games");
-            ResultSet set = conn.prepareStatement("SELECT * FROM games").executeQuery();
-            while(set.next()) {
-                System.out.println(set.getString(1));
-                System.out.println(set.getString(2));
-            }
-        } catch (SQLException e) {
-            System.out.println("there was a problem with printing games");
-        }
+//        try (var conn = DatabaseManager.getConnection()) {
+//            ResultSet set = conn.prepareStatement("SELECT * FROM games").executeQuery();
+//            while(set.next()) {
+//                System.out.println(set.getString(1));
+//                System.out.println(set.getString(2));
+//            }
+//        } catch (SQLException e) {
+//            System.out.println("there was a problem with printing games");
+//        }
 
         try (var conn = DatabaseManager.getConnection()) {
             var statement = conn.prepareStatement("SELECT * FROM games WHERE id = ?");
-            System.out.println("ID: " + gameID);
+//            System.out.println("ID: " + gameID);
             statement.setInt(1, gameID);
-            System.out.println("executing query: " + statement.toString());
+//            System.out.println("executing query: " + statement.toString());
             ResultSet result = statement.executeQuery();
             if (result.next()) {
-                System.out.println("this happened");
+//                System.out.println("this happened");
                 return new Gson().fromJson(result.getString("json"), GameData.class);
             } else {
-                System.out.println("it was this");
-                System.out.println(result.toString());
+//                System.out.println("it was this");
+//                System.out.println(result.toString());
                 return null;
             }
         } catch (SQLException e) {

@@ -3,6 +3,7 @@ package server;
 import dataaccess.*;
 import exception.ResponseException;
 import model.*;
+import websocket.WebSocketFacade;
 
 import service.Service;
 import spark.*;
@@ -15,10 +16,12 @@ import java.util.SequencedMap;
 
 public class Server {
     DataAccess dataAccess;
+    WebSocketFacade webSocketFacade;
 
     {
         try {
             dataAccess = new MySQLDataAccess();
+            webSocketFacade = new WebSocketFacade(dataAccess);
         } catch (ResponseException | DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -33,6 +36,8 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", webSocketFacade);
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::registerUser);
@@ -59,7 +64,7 @@ public class Server {
         var user = new Gson().fromJson(req.body(), UserData.class);
         try {
             var ret = service.registerUser(user);
-            System.out.println("return type: " + ret.getClass());
+//            System.out.println("return type: " + ret.getClass());
             if (ret.equals(new ErrorResponse("Error: bad request"))) {
                 res.status(400);
             } else if (ret.equals(new ErrorResponse("Error: already taken"))) {
@@ -134,8 +139,7 @@ public class Server {
             System.out.println("Something went wrong with getting gameID");
         }
         String playerColor = (String) (new Gson().fromJson(req.body(), Map.class)).get("playerColor");
-        System.out.println(authToken + playerColor + gameIDObject);
-        System.out.println("here we are!!");
+//        System.out.println(authToken + playerColor + gameIDObject);
         JoinGameReqeust joinGameReqeust = new JoinGameReqeust(authToken, playerColor, gameID);
         var ret = service.joinGame(joinGameReqeust);
         if (ret.equals(Collections.emptyMap())){

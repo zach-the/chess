@@ -11,7 +11,6 @@ import static ui.EscapeSequences.*;
 public class ChessBoardDisplay {
 
     private static final int BOARD_SIZE_IN_SQUARES = 8;
-    private static final int LINE_WIDTH_IN_CHARS = 1;
     private static final String BORDER_COLOR = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE;
     private static final String WHITE_TILE = SET_BG_COLOR_WHITE;
     private static final String BLACK_TILE = SET_BG_COLOR_BLACK;
