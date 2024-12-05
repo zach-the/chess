@@ -45,7 +45,7 @@ public class LoggedinUI {
     }
 
     private void printPrompt() {
-        System.out.print(EscapeSequences.RESET + EscapeSequences.GREEN + '[' + username + "] >>> " + EscapeSequences.WHITE);
+        System.out.print(EscapeSequences.RESET + EscapeSequences.GREEN + '[' + username + "] >>> " + EscapeSequences.RESET + EscapeSequences.WHITE);
     }
 
     public String eval(String input) {
