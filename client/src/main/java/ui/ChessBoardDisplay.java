@@ -22,19 +22,20 @@ public class ChessBoardDisplay {
         out.print(ERASE_SCREEN);
         ChessBoard board = gameData.game().getBoard();
 
-        if (perspective == ChessGame.TeamColor.BLACK) {
-            drawHeaders(out);
-            for (int i = 1; i <= 8; i++) {
-                drawRow(out, i, board);
-            }
-            drawHeaders(out);
-        } else {
+        if (perspective == ChessGame.TeamColor.WHITE || perspective == null){
             drawHeaders(out);
             for (int i = 8; i >=1; i--) {
                 drawRow(out, i, board);
             }
             drawHeaders(out);
+        } else {
+            drawHeaders(out);
+            for (int i = 1; i <= 8; i++) {
+                drawRow(out, i, board);
+            }
+            drawHeaders(out);
         }
+
     }
 
     private static void drawHeaders(PrintStream out) {

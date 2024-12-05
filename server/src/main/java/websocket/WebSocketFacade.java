@@ -31,7 +31,9 @@ public class WebSocketFacade {
     public void onConnect(Session session) throws Exception {}
 
     @OnWebSocketClose
-    public void onClose(Session session, int statusCode, String reason) {}
+    public void onClose(Session session, int statusCode, String reason) {
+        connections.remove(session);
+    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, SQLException, DataAccessException {
@@ -47,10 +49,10 @@ public class WebSocketFacade {
                 makeMove(makeMove.authToken(), makeMove.gameID(), makeMove.move(), session);
                 break;
             case LEAVE:
-                System.out.println("LEAVE");
+                leave(cmd.getAuthToken(), cmd.getGameID(), session);
                 break;
             case RESIGN:
-                System.out.println("RESIGN");
+                resign(cmd.getAuthToken(), cmd.getGameID(), session);
                 break;
         }
     }
@@ -60,11 +62,15 @@ public class WebSocketFacade {
         System.out.println("Error for client " + connections.get(session) + ": " + error.getMessage());
     }
 
-    private void broadcast(String username, String msg, int gameID, boolean notify) throws IOException {
+    private void broadcast(String username, String msg, int gameID, boolean notifyAll) throws IOException {
         for (Map.Entry<Session, ConnectionStruct> entry : connections.entrySet()) {
             if (entry.getValue().gameID() == gameID) {
-                if (notify || !entry.getValue().username().equals(username)) {
-                    entry.getKey().getRemote().sendString(msg);
+                if (notifyAll || !entry.getValue().username().equals(username)) {
+                    try {
+                        entry.getKey().getRemote().sendString(msg);
+                    } catch (IOException e) {
+                        System.out.println(e.getMessage());
+                    }
                 }
             }
         }
@@ -86,41 +92,193 @@ public class WebSocketFacade {
         } catch (Exception e) {
             String msg;
             if(e.getMessage().contains("gameData")){
+                System.out.println("gameData error");
+                System.out.println(e.getMessage());
                 msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid gameID"));
+                session.getRemote().sendString(msg);
             } else if (e.getMessage().contains("authData")) {
+                System.out.println("authData error");
                 msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid authToken"));
-            } else {
-                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: Unknown"));
+                session.getRemote().sendString(msg);
             }
+            else {
+                System.out.println(e.getMessage());
+            }
+//                // MY PROBLEM IS HERE
+//                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: Unknown"));
+//            }
 //            System.out.println(msg);
-            session.getRemote().sendString(msg);
+//            session.getRemote().sendString(msg);
         }
     }
 
-    private void makeMove(String authToken, int gameID, ChessMove move, Session session) throws SQLException, DataAccessException {
+    private void makeMove(String authToken, int gameID, ChessMove move, Session session) throws SQLException, DataAccessException, IOException {
         System.out.println("MAKE MOVE");
         // figure out if move is valid
         AuthData authData = this.data.getAuth(authToken);
         GameData gameData = this.data.getGame(gameID);
         ChessGame game = gameData.game();
+        ChessGame.TeamColor color = game.getBoard().getPiece(move.getStartPosition()).getTeamColor();
         try {
+            if ((gameData.blackUsername() == null || gameData.whiteUsername() == null) || (!authData.username().equals(gameData.blackUsername()) && !authData.username().equals(gameData.whiteUsername()))){
+                throw new InvalidMoveException("Cannot move if not player");
+            }
             // send updated game to server
             game.makeMove(move);
-            GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+            GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game, gameData.finished());
             this.data.updateGame(gameID, updatedGameData);
             // send load_game to all clients, with updated game
+            if ((gameData.whiteUsername().equals(authData.username()) && color.equals(ChessGame.TeamColor.BLACK)) || (gameData.blackUsername().equals(authData.username()) && color.equals(ChessGame.TeamColor.WHITE)) ) {
+                throw new InvalidMoveException("Cannot move opposite team's pieces");
+            }
             String msg = new Gson().toJson(new LoadGameStruct(ServerMessage.ServerMessageType.LOAD_GAME, game));
-            session.getRemote().sendString(msg);
-
+            broadcast(authData.username(), msg, gameID, true);
+            // broadcast notification informing what move was made
+            msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, "Move was made"));
+            broadcast(authData.username(), msg, gameID, false);
+            // if move results in check, checkmate or stalemate send a notification to all clients
+            color = (color == ChessGame.TeamColor.BLACK) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            String teamColor = (color == ChessGame.TeamColor.BLACK) ? "black" : "white";
+            boolean event = false;
+            if (game.isInCheck(color)) {
+                event = true;
+                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, "Move puts " + teamColor + " in check"));
+            } else if (game.isInStalemate(color)) {
+                event = true;
+                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, "Move puts " + teamColor + " in stalemate"));
+                updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game, true);
+                this.data.updateGame(gameID, updatedGameData);
+            } else if (game.isInCheckmate(color)) {
+                event = true;
+                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, "Move puts " + teamColor + " in checkmate"));
+                updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game, true);
+                this.data.updateGame(gameID, updatedGameData);
+            }
+            if (event) {
+                broadcast(authData.username(), msg, gameID, true);
+            }
         } catch (InvalidMoveException e) {
+            if (e.getMessage().contains("out of")) {
+                String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: cannot move out of turn"));
+                session.getRemote().sendString(msg);
+            } else if (e.getMessage().contains("opposite")) {
+                String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: cannot move opposite team's pieces"));
+                session.getRemote().sendString(msg);
+            } else if (e.getMessage().contains("observer")) {
+                String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
+                session.getRemote().sendString(msg);
+            } else {
+                String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid move"));
+                session.getRemote().sendString(msg);
+            }
             System.out.println("INVALID MOVE");
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            String msg;
+            if (e.getMessage().contains("gameData")) {
+                System.out.println("gameData error");
+                System.out.println(e.getMessage());
+                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid gameID"));
+                session.getRemote().sendString(msg);
+            } else if (e.getMessage().contains("authData")) {
+                System.out.println("authData error");
+                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid authToken"));
+                session.getRemote().sendString(msg);
+            } else {
+                System.out.println(e.getMessage());
+            }
         }
-        // send load_game to all clients, with updated game
-        // broadcast notification informing what move was made
-        // if move results in check, checkmate or stalemate send a notification to all clients
     }
 
+    private void resign(String authToken, int gameID, Session session) throws SQLException, DataAccessException, IOException {
+
+
+        // STILL NEED TO FIGURE OUT HOW TO MARK THE GAME AS 'FINISHED' - LIKELY WILL INVOLVE CHANGING GAMEDATA TO HAVE A 'FINISHED' BOOLEAN VALUE
+
+
+        System.out.println("RESIGN");
+        AuthData authData = this.data.getAuth(authToken);
+        GameData gameData = this.data.getGame(gameID);
+        if (!authToken.equals(authData.authToken())) {
+            String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid authToken"));
+            session.getRemote().sendString(msg);
+            return;
+        } else if (gameData.finished()) {
+            String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: cannot resign if game is over"));
+            session.getRemote().sendString(msg);
+            return;
+        }
+        try {
+            String username = authData.username();
+            if (username.equals(gameData.blackUsername())) {
+                GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game(), true);
+                this.data.updateGame(gameID, updatedGameData);
+                String msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, username.concat(" has resigned from the game")));
+                broadcast(username, msg, gameID, true);
+                connections.remove(session);
+            } else if (username.equals(gameData.whiteUsername())) {
+                GameData updatedGameData = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game(), true);
+                this.data.updateGame(gameID, updatedGameData);
+                String msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, username.concat(" has resigned from the game")));
+                broadcast(username, msg, gameID, true);
+                connections.remove(session);
+            } else {
+                String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: cannot resign if you are not playing"));
+                session.getRemote().sendString(msg);
+            }
+        } catch (Exception e) {
+            String msg;
+            if (e.getMessage().contains("gameData")) {
+                System.out.println("gameData error");
+                System.out.println(e.getMessage());
+                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid gameID"));
+                session.getRemote().sendString(msg);
+            } else if (e.getMessage().contains("authData")) {
+                System.out.println("authData error");
+                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid authToken"));
+                session.getRemote().sendString(msg);
+            } else {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private void leave(String authToken, int gameID, Session session) throws IOException, SQLException, DataAccessException {
+        System.out.println("LEAVE");
+        AuthData authData = this.data.getAuth(authToken);
+        GameData gameData = this.data.getGame(gameID);
+        try {
+            String username = authData.username();
+            System.out.println(gameData.blackUsername());
+
+            if (username.equals(gameData.blackUsername())) {
+                System.out.println("\tblack");
+                GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game(), gameData.finished());
+                this.data.updateGame(gameID, updatedGameData);
+            } else if (username.equals(gameData.whiteUsername())) {
+                System.out.println("\twhite");
+                GameData updatedGameData = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game(), gameData.finished());
+                this.data.updateGame(gameID, updatedGameData);
+            }
+            String msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, username.concat(" has left the game")));
+            broadcast(username, msg, gameID, false);
+            connections.remove(session);
+        } catch (Exception e) {
+            String msg;
+            if (e.getMessage().contains("gameData")) {
+                System.out.println("gameData error");
+                System.out.println(e.getMessage());
+                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid gameID"));
+                session.getRemote().sendString(msg);
+            } else if (e.getMessage().contains("authData")) {
+                System.out.println("authData error");
+                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid authToken"));
+                session.getRemote().sendString(msg);
+            } else {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 
 }

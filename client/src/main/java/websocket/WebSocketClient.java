@@ -1,9 +1,14 @@
 package websocket;
 
+import chess.ChessGame;
+import model.GameData;
+import ui.ChessBoardDisplay;
+
 import javax.websocket.*;
 import java.net.URI;
 
-public class ChatClient extends Endpoint {
+public class WebSocketClient extends Endpoint {
+    private GameData currentGameData;
     private Session session;
 
     @Override
@@ -27,11 +32,19 @@ public class ChatClient extends Endpoint {
         }
     }
 
+    public void updateGameData(GameData data) {
+        currentGameData = data;
+    }
+
+    public void redraw(ChessGame.TeamColor perspective) {
+        ChessBoardDisplay.displayGame(currentGameData, perspective);
+    }
+
     public static void main(String[] args) {
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            String uri = "ws://localhost:8080/chat";
-            ChatClient client = new ChatClient();
+            String uri = "ws://localhost:8081/ws";
+            WebSocketClient client = new WebSocketClient();
             container.connectToServer(client, new URI(uri));
             Thread.sleep(1000);
             // Example: Send a message

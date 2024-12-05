@@ -185,8 +185,8 @@ public class ServiceTests {
         assertEquals(2, gameResult.gameID());
 
         List<GameData> gameData = new ArrayList<>();
-        gameData.add(new GameData(1, null, null, "myNewGame", new ChessGame()));
-        gameData.add(new GameData(2, null, null, "mySecondGame", new ChessGame()));
+        gameData.add(new GameData(1, null, null, "myNewGame", new ChessGame(), false));
+        gameData.add(new GameData(2, null, null, "mySecondGame", new ChessGame(), false));
         GameList gameList = new GameList(gameData);
 
         Object list = service.listGames(firstUserAuth);
@@ -211,8 +211,8 @@ public class ServiceTests {
         assertEquals(2, gameResult.gameID());
 
         List<GameData> gameData = new ArrayList<>();
-        gameData.add(new GameData(1, null, null, "myNewGame", new ChessGame()));
-        gameData.add(new GameData(2, null, null, "mySecondGame", new ChessGame()));
+        gameData.add(new GameData(1, null, null, "myNewGame", new ChessGame(), false));
+        gameData.add(new GameData(2, null, null, "mySecondGame", new ChessGame(), false));
         GameList gameList = new GameList(gameData);
         String fakeToken = UUID.randomUUID().toString();
 

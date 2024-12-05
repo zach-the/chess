@@ -141,7 +141,7 @@ public class SQLDataAccessTests {
     @Test
     @DisplayName("createGame Positive")
     public void createGamePositiveTest() throws ResponseException, DataAccessException {
-        GameData newGame = new GameData(1, null, null, "game", new ChessGame());
+        GameData newGame = new GameData(1, null, null, "game", new ChessGame(), false);
         dataAccess.createGame(1, newGame);
         assert(dataAccess.getGame(1).equals(newGame));
     }
@@ -149,9 +149,9 @@ public class SQLDataAccessTests {
     @Test
     @DisplayName("createGame Negative")
     public void createGameNegativeTest() throws ResponseException, DataAccessException {
-        GameData newGame = new GameData(1, null, null, "game", new ChessGame());
+        GameData newGame = new GameData(1, null, null, "game", new ChessGame(), false);
         dataAccess.createGame(1, newGame);
-        GameData otherGame = new GameData(1, null, null, "otherGame", new ChessGame());
+        GameData otherGame = new GameData(1, null, null, "otherGame", new ChessGame(), false);
         DataAccessException e = assertThrows(DataAccessException.class, () -> dataAccess.createGame(1, otherGame));
         assertTrue(e.getMessage().contains("Duplicate"));
     }
@@ -159,7 +159,7 @@ public class SQLDataAccessTests {
     @Test
     @DisplayName("getGame Positive")
     public void getGamePositiveTest() throws ResponseException, DataAccessException {
-        GameData wackyGame = new GameData(1, "black", "white", "very very strange strangeness", new ChessGame());
+        GameData wackyGame = new GameData(1, "black", "white", "very very strange strangeness", new ChessGame(), false);
         dataAccess.createGame(1, wackyGame);
         assert(dataAccess.getGame(1).equals(wackyGame));
     }
@@ -173,9 +173,9 @@ public class SQLDataAccessTests {
     @Test
     @DisplayName("updateGame Positive")
     public void updateGamePositiveTest() throws ResponseException, DataAccessException {
-        GameData newGame = new GameData(1, null, null, "game", new ChessGame());
+        GameData newGame = new GameData(1, null, null, "game", new ChessGame(), false);
         dataAccess.createGame(1, newGame);
-        GameData updatedGame = new GameData(1, null, "black", "game", new ChessGame());
+        GameData updatedGame = new GameData(1, null, "black", "game", new ChessGame(), false);
         dataAccess.updateGame(1, updatedGame);
         assertEquals(dataAccess.getGame(1), updatedGame);
     }
@@ -183,9 +183,9 @@ public class SQLDataAccessTests {
     @Test
     @DisplayName("listGame Positive")
     public void listGamePositiveTest() throws ResponseException, DataAccessException {
-        GameData newGame = new GameData(1, "white", null, "game", new ChessGame());
+        GameData newGame = new GameData(1, "white", null, "game", new ChessGame(), false);
         dataAccess.createGame(1, newGame);
-        GameData newNewGame = new GameData(2, null, "black", "game", new ChessGame());
+        GameData newNewGame = new GameData(2, null, "black", "game", new ChessGame(), false);
         dataAccess.createGame(2, newNewGame);
 
         List<GameData> gameData = new ArrayList<>();
@@ -212,11 +212,11 @@ public class SQLDataAccessTests {
     @Test
     @DisplayName("deleteGameData Positive")
     public void deleteGameDataPositiveTest() throws ResponseException, DataAccessException {
-        GameData newGame = new GameData(1, null, null, "game", new ChessGame());
+        GameData newGame = new GameData(1, null, null, "game", new ChessGame(), false);
         dataAccess.createGame(1, newGame);
         assert(dataAccess.getGame(1).equals(newGame));
 
-        GameData newNewGame = new GameData(2, null, null, "game", new ChessGame());
+        GameData newNewGame = new GameData(2, null, null, "game", new ChessGame(), false);
         dataAccess.createGame(2, newNewGame);
         assert(dataAccess.getGame(2).equals(newNewGame));
 

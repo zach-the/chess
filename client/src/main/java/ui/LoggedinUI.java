@@ -5,6 +5,7 @@ import exception.ResponseException;
 import model.*;
 import serverfacade.ServerFacade;
 import ui.ChessBoardDisplay;
+import websocket.WebSocketClient;
 
 import javax.print.attribute.SupportedValuesAttribute;
 import java.util.*;
@@ -19,6 +20,7 @@ public class LoggedinUI {
         this.server = serverFacade;
         this .username = user;
         this.auth = authToken;
+
     }
 
     public String repl() {
@@ -130,10 +132,22 @@ public class LoggedinUI {
                 var tmp = server.listGames(auth);
                 int gameNum = this.gameNumbers.get(Integer.parseInt(params[0])) - 1;
                 List<GameData> list = ((GameList)tmp).games();
-                ChessBoardDisplay.displayGame(list.get(gameNum), ChessGame.TeamColor.WHITE);
-                System.out.println();
-                ChessBoardDisplay.displayGame(list.get(Integer.parseInt(params[0]) - 1), ChessGame.TeamColor.BLACK);
-                return EscapeSequences.RESET + EscapeSequences.BLUE + "Joined game!" + "\n";
+                ChessGame.TeamColor teamColor;
+                if (color.equals("black") || color.equals("BLACK")) { teamColor = ChessGame.TeamColor.BLACK; }
+                else { teamColor = ChessGame.TeamColor.WHITE; }
+                switch(color) {
+                    case "black":
+                    case "BLACK":
+                        ChessBoardDisplay.displayGame(list.get(gameNum), ChessGame.TeamColor.BLACK);
+                        break;
+                    case "white":
+                    case "WHITE":
+                        ChessBoardDisplay.displayGame(list.get(gameNum), ChessGame.TeamColor.WHITE);
+                        break;
+                }
+                System.out.println(EscapeSequences.RESET + EscapeSequences.BLUE + "Joined game!\n");
+                return new GameplayUI(this.username, this.auth, list.get(gameNum), teamColor).repl();
+
             } else {
                 return EscapeSequences.RED + "I think this game doesn't exist\n" + EscapeSequences.RESET;
             }
@@ -163,10 +177,11 @@ public class LoggedinUI {
         System.out.println("Observing game " + params[0]);
         var tmp = server.listGames(auth);
         List<GameData> list = ((GameList)tmp).games();
-        ChessBoardDisplay.displayGame(list.getFirst(), ChessGame.TeamColor.WHITE);
-        System.out.println();
-        ChessBoardDisplay.displayGame(list.getFirst(), ChessGame.TeamColor.BLACK);
-        return "";
+        System.out.println(EscapeSequences.RESET + EscapeSequences.BLUE + "Observing game!\n");
+        int gameNum = this.gameNumbers.get(gameID) - 1;
+        ChessBoardDisplay.displayGame(list.get(gameNum), ChessGame.TeamColor.WHITE);
+        new GameplayUI(this.username, this.auth, list.get(gameNum), ChessGame.TeamColor.WHITE).repl();
+        return "this";
     }
 
     public String logout() throws ResponseException {
@@ -179,13 +194,13 @@ public class LoggedinUI {
     public String help() {
         System.out.print(EscapeSequences.BLUE);
         return """
-                   create <NAME> - a game
-                   list - games
-                   join <ID> [WHITE|BLACK] - a game
-                   observe <ID> - a game
-                   logout - when you are done
-                   quit - playing chess
-                   help - with possible commands
+                   create <NAME> - create a game
+                   list - list games
+                   join <ID> [WHITE|BLACK] - join game #ID as [WHITE|BLACK]
+                   observe <ID> - observe game #ID
+                   logout - logout of program
+                   quit - quits program
+                   help - display this help message
                 """;
     }
 }

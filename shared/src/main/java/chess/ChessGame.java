@@ -59,7 +59,7 @@ public class ChessGame {
         if (board.getPiece(end) != null && board.getPiece(end).getTeamColor() == color) {
             throw(new InvalidMoveException("Invalid Move: Cannot capture own team's piece"));
         }
-        if (!originalPiece.pieceMoves(board, start).contains(move))  {throw(new InvalidMoveException("Invalid Move: This piece can't move there")); }
+        if (!originalPiece.pieceMoves(board, start).contains(move))  { throw(new InvalidMoveException("Invalid Move: This piece can't move there")); }
         if (color != getTeamTurn()) { throw(new InvalidMoveException("Invalid Move: Cannot move out of turn")); }
         if (!inBounds(end)) { throw(new InvalidMoveException("Invalid Move: Move is out of bounds")); }
 
@@ -74,8 +74,7 @@ public class ChessGame {
             if (this.currentTurn == TeamColor.BLACK) { this.currentTurn = TeamColor.WHITE; }
             else { this.currentTurn = TeamColor.BLACK; }
             return;
-        }
-        else { // error check for if the move puts king in danger
+        } else { // error check for if the move puts king in danger
             board.addPiece(start, originalPiece);
             board.addPiece(end, null);
             throw(new InvalidMoveException("Invalid Move: Move puts your king in check"));

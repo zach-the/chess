@@ -88,7 +88,7 @@ public class Service {
         if (auth == null) {
             return new ErrorResponse("Error: unauthorized");
         }
-        GameData newGame = new GameData(++gameCount, null, null, gameRequest.gameName(), new ChessGame());
+        GameData newGame = new GameData(++gameCount, null, null, gameRequest.gameName(), new ChessGame(), false);
         this.dataAccess.createGame(gameCount, newGame);
         return new CreateGameResponse(gameCount);
     }
@@ -109,14 +109,14 @@ public class Service {
         }
         if (joinGameReqeust.playerColor().equals("WHITE") || joinGameReqeust.playerColor().equals("white")) {
             if (game.whiteUsername() == null || game.whiteUsername().equals("null")) {
-                GameData newGame = new GameData(game.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game());
+                GameData newGame = new GameData(game.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game(), false);
                 this.dataAccess.updateGame(joinGameReqeust.gameID(), newGame);
             } else {
                 return new ErrorResponse("Error: already taken");
             }
         } else if (joinGameReqeust.playerColor().equals("BLACK") || joinGameReqeust.playerColor().equals("black")) {
             if (game.blackUsername() == null || game.blackUsername().equals("null")) {
-                GameData newGame = new GameData(game.gameID(), game.whiteUsername(), auth.username(), game.gameName(), game.game());
+                GameData newGame = new GameData(game.gameID(), game.whiteUsername(), auth.username(), game.gameName(), game.game(), false);
                 this.dataAccess.updateGame(joinGameReqeust.gameID(), newGame);
             } else {
                 return new ErrorResponse("Error: already taken");
