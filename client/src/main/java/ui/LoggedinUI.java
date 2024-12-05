@@ -179,7 +179,7 @@ public class LoggedinUI {
         System.out.println(EscapeSequences.RESET + EscapeSequences.BLUE + "Observing game!\n");
         int gameNum = this.gameNumbers.get(gameID) - 1;
         ChessBoardDisplay.
-                displayGame(list.get(gameNum), ChessGame.TeamColor.WHITE); // new GameplayUI(this.username, this.auth, list.get(gameNum), ChessGame.TeamColor.WHITE, gameNum).repl();
+                displayGame(list.get(gameNum), ChessGame.TeamColor.WHITE); 
         return "this";
     }
 
