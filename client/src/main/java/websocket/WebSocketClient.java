@@ -19,6 +19,7 @@ public class WebSocketClient extends Endpoint {
         session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
             public void onMessage(String message) {
+
                 System.out.println("Received message: " + message);
             }
         });

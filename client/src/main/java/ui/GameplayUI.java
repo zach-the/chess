@@ -1,10 +1,12 @@
 package ui;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
 import serverfacade.ServerFacade;
 import websocket.WebSocketClient;
+import websocket.commands.UserGameCommand;
 
 import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
@@ -17,15 +19,17 @@ public class GameplayUI {
     private final String username;
     private final String auth;
     private final WebSocketClient client = new WebSocketClient();
+    private final int gameID;
     private Map<Integer, Integer> gameNumbers;
     ChessGame.TeamColor perspective = null;
 
-    public GameplayUI(String user, String authToken, GameData currentGameData, ChessGame.TeamColor perspective) {
-        System.out.println("HERE");
+    public GameplayUI(String user, String authToken, GameData currentGameData, ChessGame.TeamColor perspective, int gameID) {
         this.username = user;
         this.auth = authToken;
         this.perspective = perspective;
+        this.gameID = gameID;
         client.updateGameData(currentGameData);
+        client.sendMessage(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.CONNECT, auth, gameID)));
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             String uri = "ws://localhost:8081/ws";
@@ -67,10 +71,10 @@ public class GameplayUI {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "redraw" -> redraw(perspective);
-//                case "leave" -> leave();
+                case "leave" -> leave();
 //                case "move" -> move(params);
 //                case "resign" -> resign();
-//                case "highlight" -> highlight();
+//                case "highlight" -> highlight(params);
                 default -> help();
             };
 
@@ -82,6 +86,12 @@ public class GameplayUI {
 
     private String redraw(ChessGame.TeamColor perspective) {
         client.redraw(perspective);
+        return "";
+    }
+
+    private String leave() {
+
+        client.sendMessage(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.LEAVE, auth, gameID)));
         return "";
     }
 
