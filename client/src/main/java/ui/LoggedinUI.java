@@ -145,7 +145,7 @@ public class LoggedinUI {
                         break;
                 }
                 System.out.println(EscapeSequences.RESET + EscapeSequences.BLUE + "Joined game!\n");
-                return new GameplayUI(this.username, this.auth, list.get(gameNum), teamColor, gameNum).repl();
+                return ""; // new GameplayUI(this.username, this.auth, list.get(gameNum), teamColor, gameNum).repl();
 
             } else {
                 return EscapeSequences.RED + "I think this game doesn't exist\n" + EscapeSequences.RESET;
@@ -178,8 +178,7 @@ public class LoggedinUI {
         List<GameData> list = ((GameList)tmp).games();
         System.out.println(EscapeSequences.RESET + EscapeSequences.BLUE + "Observing game!\n");
         int gameNum = this.gameNumbers.get(gameID) - 1;
-        ChessBoardDisplay.displayGame(list.get(gameNum), ChessGame.TeamColor.WHITE);
-        new GameplayUI(this.username, this.auth, list.get(gameNum), ChessGame.TeamColor.WHITE, gameNum).repl();
+        ChessBoardDisplay.displayGame(list.get(gameNum), ChessGame.TeamColor.WHITE); //        new GameplayUI(this.username, this.auth, list.get(gameNum), ChessGame.TeamColor.WHITE, gameNum).repl();
         return "this";
     }
 
