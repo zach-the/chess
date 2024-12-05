@@ -116,15 +116,19 @@ public class WebSocketFacade {
         ChessGame game = gameData.game();
         ChessGame.TeamColor color = game.getBoard().getPiece(move.getStartPosition()).getTeamColor();
         try {
-            if ((gameData.blackUsername() == null || gameData.whiteUsername() == null) || (!authData.username().equals(gameData.blackUsername()) && !authData.username().equals(gameData.whiteUsername()))){
+            if ((gameData.blackUsername() == null || gameData.whiteUsername() == null)
+                    || (!authData.username().equals(gameData.blackUsername())
+                    && !authData.username().equals(gameData.whiteUsername()))){
                 throw new InvalidMoveException("Cannot move if not player");
             }
             // send updated game to server
             game.makeMove(move);
-            GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game, gameData.finished());
+            GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(),
+                    gameData.blackUsername(), gameData.gameName(), game, gameData.finished());
             this.data.updateGame(gameID, updatedGameData);
             // send load_game to all clients, with updated game
-            if ((gameData.whiteUsername().equals(authData.username()) && color.equals(ChessGame.TeamColor.BLACK)) || (gameData.blackUsername().equals(authData.username()) && color.equals(ChessGame.TeamColor.WHITE)) ) {
+            if ((gameData.whiteUsername().equals(authData.username()) && color.equals(ChessGame.TeamColor.BLACK))
+                    || (gameData.blackUsername().equals(authData.username()) && color.equals(ChessGame.TeamColor.WHITE)) ) {
                 throw new InvalidMoveException("Cannot move opposite team's pieces");
             }
             String msg = new Gson().toJson(new LoadGameStruct(ServerMessage.ServerMessageType.LOAD_GAME, game));
@@ -138,16 +142,21 @@ public class WebSocketFacade {
             boolean event = false;
             if (game.isInCheck(color)) {
                 event = true;
-                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, "Move puts " + teamColor + " in check"));
+                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
+                        "Move puts " + teamColor + " in check"));
             } else if (game.isInStalemate(color)) {
                 event = true;
-                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, "Move puts " + teamColor + " in stalemate"));
-                updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game, true);
+                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
+                        "Move puts " + teamColor + " in stalemate"));
+                updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),
+                        gameData.gameName(), game, true);
                 this.data.updateGame(gameID, updatedGameData);
             } else if (game.isInCheckmate(color)) {
                 event = true;
-                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, "Move puts " + teamColor + " in checkmate"));
-                updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game, true);
+                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
+                        "Move puts " + teamColor + " in checkmate"));
+                updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),
+                        gameData.gameName(), game, true);
                 this.data.updateGame(gameID, updatedGameData);
             }
             if (event) {
@@ -196,15 +205,19 @@ public class WebSocketFacade {
         try {
             String username = authData.username();
             if (username.equals(gameData.blackUsername())) {
-                GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game(), true);
+                GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null,
+                        gameData.gameName(), gameData.game(), true);
                 this.data.updateGame(gameID, updatedGameData);
-                String msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, username.concat(" has resigned from the game")));
+                String msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
+                        username.concat(" has resigned from the game")));
                 broadcast(username, msg, gameID, true);
                 connections.remove(session);
             } else if (username.equals(gameData.whiteUsername())) {
-                GameData updatedGameData = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game(), true);
+                GameData updatedGameData = new GameData(gameData.gameID(), null, gameData.blackUsername(),
+                        gameData.gameName(), gameData.game(), true);
                 this.data.updateGame(gameID, updatedGameData);
-                String msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, username.concat(" has resigned from the game")));
+                String msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
+                        username.concat(" has resigned from the game")));
                 broadcast(username, msg, gameID, true);
                 connections.remove(session);
             } else {
@@ -226,14 +239,17 @@ public class WebSocketFacade {
 
             if (username.equals(gameData.blackUsername())) {
                 System.out.println("\tblack");
-                GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game(), gameData.finished());
+                GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null,
+                        gameData.gameName(), gameData.game(), gameData.finished());
                 this.data.updateGame(gameID, updatedGameData);
             } else if (username.equals(gameData.whiteUsername())) {
                 System.out.println("\twhite");
-                GameData updatedGameData = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game(), gameData.finished());
+                GameData updatedGameData = new GameData(gameData.gameID(), null, gameData.blackUsername(),
+                        gameData.gameName(), gameData.game(), gameData.finished());
                 this.data.updateGame(gameID, updatedGameData);
             }
-            String msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, username.concat(" has left the game")));
+            String msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
+                    username.concat(" has left the game")));
             broadcast(username, msg, gameID, false);
             connections.remove(session);
         } catch (Exception e) {
