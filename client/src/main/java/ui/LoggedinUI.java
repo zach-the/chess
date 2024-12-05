@@ -20,7 +20,6 @@ public class LoggedinUI {
         this.server = serverFacade;
         this .username = user;
         this.auth = authToken;
-
     }
 
     public String repl() {

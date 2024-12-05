@@ -104,20 +104,7 @@ public class WebSocketFacade {
             msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, authData.username() + " nice"));
             broadcast(authData.username(), msg, gameID, false);
         } catch (Exception e) {
-            String msg;
-            if(e.getMessage().contains("gameData")){
-                System.out.println("gameData error");
-                System.out.println(e.getMessage());
-                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid gameID"));
-                session.getRemote().sendString(msg);
-            } else if (e.getMessage().contains("authData")) {
-                System.out.println("authData error");
-                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: invalid authToken"));
-                session.getRemote().sendString(msg);
-            }
-            else {
-                System.out.println(e.getMessage());
-            }
+            stupidExceptionDuplicate(e, session);
         }
     }
 
