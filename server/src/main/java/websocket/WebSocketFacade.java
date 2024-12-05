@@ -94,8 +94,6 @@ public class WebSocketFacade {
 
     private void connect(String authToken, int gameID, Session session) throws SQLException, DataAccessException, IOException {
         System.out.println("CONNECT");
-//        System.out.println("authToken: " + authToken);
-//        System.out.println("authToken: " + gameID);
         AuthData authData = this.data.getAuth(authToken);
         GameData gameData = this.data.getGame(gameID);
 
@@ -120,11 +118,6 @@ public class WebSocketFacade {
             else {
                 System.out.println(e.getMessage());
             }
-//                // MY PROBLEM IS HERE
-//                msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: Unknown"));
-//            }
-//            System.out.println(msg);
-//            session.getRemote().sendString(msg);
         }
     }
 
