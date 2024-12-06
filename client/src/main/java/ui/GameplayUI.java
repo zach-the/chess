@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import exception.ResponseException;
@@ -57,16 +58,16 @@ public class GameplayUI {
 
             try {
                 result = eval(line);
-                System.out.print(EscapeSequences.BLUE + result);
+                if (!result.equals("noPrint")) System.out.print(EscapeSequences.BLUE + result);
                 if (result.equals("Leaving Game...")) { break; }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(EscapeSequences.RED + msg + EscapeSequences.RESET);
             }
-            printPrompt(username);
+            if (!result.equals("noPrint")) printPrompt(username);
         }
         System.out.println();
-        return EscapeSequences.BLUE + result + EscapeSequences.RESET;
+        return EscapeSequences.BLUE + result + EscapeSequences.RESET + EscapeSequences.WHITE;
     }
 
     public static void printPrompt(String username) {
@@ -83,7 +84,7 @@ public class GameplayUI {
             case "leave" -> leave();
             case "move" -> move(params);
             case "resign" -> resign();
-//                case "highlight" -> highlight(params);
+            case "highlight" -> highlight(params);
             default -> help();
         };
 
@@ -109,64 +110,99 @@ public class GameplayUI {
     }
 
     int verifySize(int in) throws Exception {
-        System.out.println(in);
         if (in < 9 && in > 0) return in;
         else throw new Exception("bad");
     }
 
-    int handleChar(String in) throws Exception {
+    int handleChar(char in) throws Exception {
+        in = Character.toLowerCase(in);
         switch (in) {
-            case "a" -> { return 1; }
-            case "b" -> { return 2; }
-            case "c" -> { return 3; }
-            case "d" -> { return 4; }
-            case "e" -> { return 5; }
-            case "f" -> { return 6; }
-            case "g" -> { return 7; }
-            case "h" -> { return 8; }
+            case 'a' -> { return 1; }
+            case 'b' -> { return 2; }
+            case 'c' -> { return 3; }
+            case 'd' -> { return 4; }
+            case 'e' -> { return 5; }
+            case 'f' -> { return 6; }
+            case 'g' -> { return 7; }
+            case 'h' -> { return 8; }
             default -> throw new Exception("really bad");
         }
+    }
+
+    private ChessPiece.PieceType handlePromotion(String inString) throws Exception {
+//        inString = toLowerCase(inString);
+        return switch (inString) {
+            case "queen" -> ChessPiece.PieceType.QUEEN;
+            case "bishop" -> ChessPiece.PieceType.BISHOP;
+            case "knight" -> ChessPiece.PieceType.KNIGHT;
+            case "rook" -> ChessPiece.PieceType.ROOK;
+            case "pawn" -> ChessPiece.PieceType.PAWN;
+            default -> throw new Exception("Invalid piece");
+        };
     }
 
     private String move(String... params) {
         if (!player) {
             return EscapeSequences.RED + "You cannot make moves as an observer\n" + EscapeSequences.RESET;
         }
-        if (params.length == 4) {
+        if (params.length == 2 || params.length == 3) {
             ChessPosition startPosition, endPosition;
             try {
-                startPosition = new ChessPosition(verifySize(Integer.parseInt(params[1])), handleChar(params[0]));
-                endPosition = new ChessPosition(verifySize(Integer.parseInt(params[3])), handleChar(params[2]));
+                startPosition = new ChessPosition(verifySize(params[0].charAt(1)-'0'), handleChar(params[0].charAt(0)));
+                endPosition = new ChessPosition(verifySize(params[1].charAt(1)-'0'), handleChar(params[1].charAt(0)));
             } catch (Exception e) {
-                return EscapeSequences.RED + "the first four inputs must be integers between 1 and 8, and letters between a and h\n" + EscapeSequences.RED;
+                return EscapeSequences.RED + "the first two inputs must be coordinates as follows: colRow. example: c4 c5\n" + EscapeSequences.RED;
             }
-            ChessMove move = new ChessMove(startPosition, endPosition, null);
+            ChessPiece.PieceType promotion = null;
+            if (params.length == 3) {
+                try {
+                    promotion = handlePromotion(params[2]);
+                } catch (Exception e) {
+                    return EscapeSequences.RED + "Invalid promotion piece\n" + EscapeSequences.RESET;
+                }
+            }
+            ChessMove move = new ChessMove(startPosition, endPosition, promotion);
             client.sendMessage(new Gson().toJson(new MakeMoveStruct("MAKE_MOVE", auth, gameID, move)));
-        } else if (params.length == 5) {
-            return EscapeSequences.RED + "I have yet to implement promotions\n" + EscapeSequences.RESET;
+            return "noPrint";
         } else {
-            return EscapeSequences.RED + "Move requires 4 or 5 inputs: use 'help' for more\n" + EscapeSequences.RESET;
+            return EscapeSequences.RED + "Move requires 2 or 3 inputs: use 'help' for more\n" + EscapeSequences.RESET;
         }
+    }
 
-
-
-
-        return "";
+    private String highlight(String... params) {
+        if (params.length == 1) {
+            ChessPosition highlightThis;
+            try {
+                highlightThis = new ChessPosition(verifySize(params[0].charAt(1)-'0'), handleChar(params[0].charAt(0)));
+            } catch (Exception e) {
+                return EscapeSequences.RED + "the input coordinate must be as follows: colRow. example: c4\n" + EscapeSequences.RESET;
+            }
+            client.highlight(perspective, highlightThis);
+            return "noPrint";
+        } else {
+            return EscapeSequences.RED + "Highlight requires 1 coordinate input: use 'help' for more\n" + EscapeSequences.RESET;
+        }
     }
 
 
     public String help() {
         System.out.print(EscapeSequences.BLUE);
         return """
-                   redraw - redraw chess board
-                   move <COL> <ROW> <COL> <ROW> <PROMOTIONPIECE>- move from ROW, COL to ROW, COL
-                        <COL> must be between a and h
-                        <ROW> must be between 1 and 8
-                        can become <PROMOTIONPIECE> if pawn is eligible for promotion
-                   resign - forfeits the game
-                   leave - leave the game
-                   highlight <ROW (1-8)> <COL (1-8)>- highlight legal moves for a given piece
-                   help - display this help dialog
+                    redraw - redraw chess board
+                    resign - forfeits the game
+                    leave - leave the game
+                    highlight <POSITION>- highlight legal moves for a given piece
+                        example:
+                            highlight c3
+                    move <START> <FINISH> <PROMOTION PIECE> - move from START coordinate to FINISH coordinate,
+                        can become <PROMOTION PIECE> if pawn is eligible for promotion
+                        coordinates are arranged as follows: COLROW
+                        COL must be a single character between a and h
+                        ROW must be a single digit between 1 and 8
+                        examples:
+                            move c4 b5
+                            move b7 b8 knight
+                    help - display this help dialog
                 """;
     }
 }

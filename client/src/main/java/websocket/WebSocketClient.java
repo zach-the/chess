@@ -1,6 +1,7 @@
 package websocket;
 
 import chess.ChessGame;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.GameData;
 import ui.ChessBoardDisplay;
@@ -34,7 +35,10 @@ public class WebSocketClient extends Endpoint {
         session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
             public void onMessage(String message) {
-                System.out.println(message);
+                for (int i = 0; i < username.length(); i++) {
+                    System.out.print("\b");
+                }
+                System.out.println("\b\b\b\b\b\b\b");
                 handler(message);
             }
         });
@@ -54,6 +58,15 @@ public class WebSocketClient extends Endpoint {
 
     public void redraw(ChessGame.TeamColor perspective) {
         ChessBoardDisplay.displayGame(currentGame, perspective);
+    }
+
+    public void highlight(ChessGame.TeamColor perspective, ChessPosition highlightThis) {
+        if (currentGame.validMoves(highlightThis) != null)
+            ChessBoardDisplay.highlightGame(currentGame, perspective, highlightThis);
+        else {
+            System.out.println(EscapeSequences.RED + "You must select a space with a piece on it" + EscapeSequences.RESET);
+            GameplayUI.printPrompt(username);
+        }
     }
 
     private void handler(String message) {
@@ -76,7 +89,7 @@ public class WebSocketClient extends Endpoint {
                 GameplayUI.printPrompt(username);
                 break;
             default:
-                System.out.println("yuh");
+                System.out.println(EscapeSequences.RED + "Something went wrong" + EscapeSequences.RESET);
         }
     }
 }

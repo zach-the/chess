@@ -20,6 +20,14 @@ public class Service {
     public Service(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
         gameCount = 0;
+        try {
+            GameList tmpList = dataAccess.listGames();
+            for (int i = 0; i < tmpList.games().size(); i++) {
+                int gameNum = tmpList.games().get(i).gameID();
+                if (gameNum > gameCount) gameCount = gameNum;
+            }
+        } catch (Exception e) { System.out.println("Failed to get highest game number"); }
+        System.out.println("beginning gameCount at: " + gameCount);
     }
 
 
@@ -48,7 +56,6 @@ public class Service {
                 throw new DataAccessException(e.toString());
             }
         }
-
     }
 
     public Object userLogin(LoginRequest loginRequest) throws DataAccessException {
