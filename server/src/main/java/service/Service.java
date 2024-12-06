@@ -15,10 +15,11 @@ import java.util.UUID;
 
 public class Service {
     private final DataAccess dataAccess;
-    int gameCount = 0;
+    int gameCount;
 
     public Service(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
+        gameCount = 0;
     }
 
 
