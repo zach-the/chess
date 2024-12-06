@@ -105,6 +105,6 @@ public class PreloginUI {
                    login <USERNAME> <PASSWORD> - to play chess
                    quit - playing chess
                    help - with possible commands
-                """;
+               """;
     }
 }

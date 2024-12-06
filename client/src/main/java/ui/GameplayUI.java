@@ -130,7 +130,6 @@ public class GameplayUI {
     }
 
     private ChessPiece.PieceType handlePromotion(String inString) throws Exception {
-//        inString = toLowerCase(inString);
         return switch (inString) {
             case "queen" -> ChessPiece.PieceType.QUEEN;
             case "bishop" -> ChessPiece.PieceType.BISHOP;
@@ -183,7 +182,6 @@ public class GameplayUI {
             return EscapeSequences.RED + "Highlight requires 1 coordinate input: use 'help' for more\n" + EscapeSequences.RESET;
         }
     }
-
 
     public String help() {
         System.out.print(EscapeSequences.BLUE);

@@ -188,6 +188,6 @@ public class LoggedinUI {
                    logout - logout of program
                    quit - quits program
                    help - display this help message
-                """;
+               """;
     }
 }

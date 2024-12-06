@@ -65,8 +65,8 @@ public class WebSocketClient extends Endpoint {
             ChessBoardDisplay.highlightGame(currentGame, perspective, highlightThis);
         else {
             System.out.println(EscapeSequences.RED + "You must select a space with a piece on it" + EscapeSequences.RESET);
-            GameplayUI.printPrompt(username);
         }
+        GameplayUI.printPrompt(username);
     }
 
     private void handler(String message) {

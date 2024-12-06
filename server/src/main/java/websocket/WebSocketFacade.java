@@ -121,12 +121,13 @@ public class WebSocketFacade {
         ChessGame game = gameData.game();
 
         try {
+            if (gameData.finished()) { throw new InvalidMoveException("Error: game is over"); }
             if (game.getBoard().getPiece(move.getStartPosition()) == null) { throw new InvalidMoveException("Error: no piece at the given location"); }
             ChessGame.TeamColor color = game.getBoard().getPiece(move.getStartPosition()).getTeamColor();
             if ((gameData.blackUsername() == null || gameData.whiteUsername() == null)
                     || (!authData.username().equals(gameData.blackUsername())
                     && !authData.username().equals(gameData.whiteUsername()))){
-                throw new InvalidMoveException("Cannot move if not player");
+                throw new InvalidMoveException("Error: Cannot move if not player");
             }
             // send updated game to server
             System.out.println("making move");
@@ -139,41 +140,44 @@ public class WebSocketFacade {
             // send load_game to all clients, with updated game
             if ((gameData.whiteUsername().equals(authData.username()) && color.equals(ChessGame.TeamColor.BLACK))
                     || (gameData.blackUsername().equals(authData.username()) && color.equals(ChessGame.TeamColor.WHITE)) ) {
-                throw new InvalidMoveException("Cannot move opposite team's pieces");
+                throw new InvalidMoveException("Error: Cannot move opposite team's pieces");
             }
             String msg = new Gson().toJson(new LoadGameStruct(ServerMessage.ServerMessageType.LOAD_GAME, game));
             broadcast(authData.username(), msg, gameID, true);
             // broadcast notification informing what move was made
-            msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, "Move was made"));
+            msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, "Move was made by " + authData.username()));
             broadcast(authData.username(), msg, gameID, false);
             // if move results in check, checkmate or stalemate send a notification to all clients
             color = (color == ChessGame.TeamColor.BLACK) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
             String teamColor = (color == ChessGame.TeamColor.BLACK) ? "black" : "white";
             boolean event = false;
-            if (game.isInCheck(color)) {
+            if (game.isInStalemate(color)) {
                 event = true;
                 msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
-                        "Move puts " + teamColor + " in check"));
-            } else if (game.isInStalemate(color)) {
-                event = true;
-                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
-                        "Move puts " + teamColor + " in stalemate"));
+                        "Move puts " + teamColor + " in stalemate. The game is over."));
                 updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),
                         gameData.gameName(), game, true);
                 this.data.updateGame(gameID, updatedGameData);
             } else if (game.isInCheckmate(color)) {
                 event = true;
                 msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
-                        "Move puts " + teamColor + " in checkmate"));
+                        "Move puts " + teamColor + " in checkmate. " + authData.username() + " has won the game."));
                 updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),
                         gameData.gameName(), game, true);
                 this.data.updateGame(gameID, updatedGameData);
+            } else if (game.isInCheck(color)) {
+                event = true;
+                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
+                        "Move puts " + teamColor + " in check."));
             }
             if (event) {
                 broadcast(authData.username(), msg, gameID, true);
             }
         } catch (InvalidMoveException e) {
-            if (e.getMessage().contains("out of")) {
+            if (e.getMessage().contains("over")) {
+                String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Cannot move pieces: game is over"));
+                session.getRemote().sendString(msg);
+            } else if (e.getMessage().contains("out of")) {
                 String msg = new Gson().toJson(new ErrorStruct(ServerMessage.ServerMessageType.ERROR, "Error: cannot move out of turn"));
                 session.getRemote().sendString(msg);
             } else if (e.getMessage().contains("opposite")) {
@@ -195,11 +199,6 @@ public class WebSocketFacade {
     }
 
     private void resign(String authToken, int gameID, Session session) throws SQLException, DataAccessException, IOException {
-
-
-        // STILL NEED TO FIGURE OUT HOW TO MARK THE GAME AS 'FINISHED' - LIKELY WILL INVOLVE CHANGING GAMEDATA TO HAVE A 'FINISHED' BOOLEAN VALUE
-
-
         System.out.println("RESIGN");
         AuthData authData = this.data.getAuth(authToken);
         GameData gameData = this.data.getGame(gameID);
