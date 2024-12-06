@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 import ui.ChessBoardDisplay;
+import ui.EscapeSequences;
 import ui.GameplayUI;
 import websocket.messages.ServerMessage;
 
@@ -33,6 +34,7 @@ public class WebSocketClient extends Endpoint {
         session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
             public void onMessage(String message) {
+                System.out.println(message);
                 handler(message);
             }
         });
@@ -60,11 +62,21 @@ public class WebSocketClient extends Endpoint {
             case LOAD_GAME:
                 LoadGameStruct loadGameStruct = new Gson().fromJson(message, LoadGameStruct.class);
                 updateGame(loadGameStruct.game());
-                System.out.println();
                 ChessBoardDisplay.displayGame(currentGame, color);
                 GameplayUI.printPrompt(username);
+                break;
             case NOTIFICATION:
+                NotificationStruct notificationStruct = new Gson().fromJson(message, NotificationStruct.class);
+                System.out.println(EscapeSequences.PURPLE + notificationStruct.message() + EscapeSequences.RESET);
+                GameplayUI.printPrompt(username);
+                break;
             case ERROR:
+                ErrorStruct errorStruct = new Gson().fromJson(message, ErrorStruct.class);
+                System.out.println(EscapeSequences.RED + errorStruct.errorMessage() + EscapeSequences.RESET);
+                GameplayUI.printPrompt(username);
+                break;
+            default:
+                System.out.println("yuh");
         }
     }
 }

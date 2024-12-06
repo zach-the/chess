@@ -1,10 +1,13 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
 import serverfacade.ServerFacade;
+import websocket.MakeMoveStruct;
 import websocket.WebSocketClient;
 import websocket.commands.UserGameCommand;
 
@@ -22,13 +25,15 @@ public class GameplayUI {
     private final int gameID;
     private Map<Integer, Integer> gameNumbers;
     ChessGame.TeamColor perspective = null;
+    boolean player;
 
-    public GameplayUI(String user, String authToken, GameData currentGameData, ChessGame.TeamColor perspective, int gameID) {
+    public GameplayUI(String user, String authToken, GameData currentGameData, ChessGame.TeamColor perspective, int gameID, boolean player) {
         this.username = user;
         this.auth = authToken;
         this.perspective = perspective;
         this.gameID = gameID;
         this.client = new WebSocketClient(username, auth, gameID, currentGameData.game(), perspective);
+        this.player = player;
 
 
         try {
@@ -39,9 +44,7 @@ public class GameplayUI {
             System.out.println("Something went wrong in the GameplayUI init");
             System.out.println(e.getMessage());
         }
-        System.out.println(gameID);
         client.sendMessage(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.CONNECT, auth, gameID)));
-
     }
 
     public String repl() {
@@ -50,20 +53,20 @@ public class GameplayUI {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while(!result.equals("Leaving Game...")){
-            printPrompt(username);
             String line = scanner.nextLine();
 
             try {
                 result = eval(line);
                 System.out.print(EscapeSequences.BLUE + result);
-                if (result.equals("Leaving Game")) { continue; }
+                if (result.equals("Leaving Game...")) { break; }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(EscapeSequences.RED + msg + EscapeSequences.RESET);
             }
+            printPrompt(username);
         }
         System.out.println();
-        return result;
+        return EscapeSequences.BLUE + result + EscapeSequences.RESET;
     }
 
     public static void printPrompt(String username) {
@@ -78,8 +81,8 @@ public class GameplayUI {
         return switch (cmd) {
             case "redraw" -> redraw(perspective);
             case "leave" -> leave();
-//                case "move" -> move(params);
-//                case "resign" -> resign();
+            case "move" -> move(params);
+            case "resign" -> resign();
 //                case "highlight" -> highlight(params);
             default -> help();
         };
@@ -100,12 +103,66 @@ public class GameplayUI {
         return "Leaving Game...";
     }
 
+    private String resign() {
+        client.sendMessage(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.RESIGN, auth, gameID)));
+        return "";
+    }
+
+    int verifySize(int in) throws Exception {
+        System.out.println(in);
+        if (in < 9 && in > 0) return in;
+        else throw new Exception("bad");
+    }
+
+    int handleChar(String in) throws Exception {
+        switch (in) {
+            case "a" -> { return 1; }
+            case "b" -> { return 2; }
+            case "c" -> { return 3; }
+            case "d" -> { return 4; }
+            case "e" -> { return 5; }
+            case "f" -> { return 6; }
+            case "g" -> { return 7; }
+            case "h" -> { return 8; }
+            default -> throw new Exception("really bad");
+        }
+    }
+
+    private String move(String... params) {
+        if (!player) {
+            return EscapeSequences.RED + "You cannot make moves as an observer\n" + EscapeSequences.RESET;
+        }
+        if (params.length == 4) {
+            ChessPosition startPosition, endPosition;
+            try {
+                startPosition = new ChessPosition(verifySize(Integer.parseInt(params[1])), handleChar(params[0]));
+                endPosition = new ChessPosition(verifySize(Integer.parseInt(params[3])), handleChar(params[2]));
+            } catch (Exception e) {
+                return EscapeSequences.RED + "the first four inputs must be integers between 1 and 8, and letters between a and h\n" + EscapeSequences.RED;
+            }
+            ChessMove move = new ChessMove(startPosition, endPosition, null);
+            client.sendMessage(new Gson().toJson(new MakeMoveStruct("MAKE_MOVE", auth, gameID, move)));
+        } else if (params.length == 5) {
+            return EscapeSequences.RED + "I have yet to implement promotions\n" + EscapeSequences.RESET;
+        } else {
+            return EscapeSequences.RED + "Move requires 4 or 5 inputs: use 'help' for more\n" + EscapeSequences.RESET;
+        }
+
+
+
+
+        return "";
+    }
+
 
     public String help() {
         System.out.print(EscapeSequences.BLUE);
         return """
                    redraw - redraw chess board
-                   move <ROW (1-8)> <COL (1-8)> <ROW (1-8)> <COL (1-8)> - move from ROW, COL to ROW, COL
+                   move <COL> <ROW> <COL> <ROW> <PROMOTIONPIECE>- move from ROW, COL to ROW, COL
+                        <COL> must be between a and h
+                        <ROW> must be between 1 and 8
+                        can become <PROMOTIONPIECE> if pawn is eligible for promotion
                    resign - forfeits the game
                    leave - leave the game
                    highlight <ROW (1-8)> <COL (1-8)>- highlight legal moves for a given piece

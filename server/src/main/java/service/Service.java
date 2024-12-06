@@ -94,6 +94,7 @@ public class Service {
     }
 
     public Object joinGame(JoinGameReqeust joinGameRequest) throws DataAccessException {
+        System.out.println("from Service: joinGameRequest: " + joinGameRequest);
         AuthData auth = null;
         try {
             auth = this.dataAccess.getAuth(joinGameRequest.authToken());
@@ -103,6 +104,7 @@ public class Service {
         if (auth == null || !auth.authToken().equals(joinGameRequest.authToken())) {
             return new ErrorResponse("Error: unauthorized");
         }
+        System.out.println(listGames(auth.authToken()));
         GameData game = this.dataAccess.getGame(joinGameRequest.gameID());
         if (game == null || joinGameRequest.playerColor() == null || joinGameRequest.gameID() == null) {
             if (game != null) System.out.println(game); else System.out.println("game was null");

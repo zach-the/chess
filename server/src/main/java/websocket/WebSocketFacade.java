@@ -102,7 +102,11 @@ public class WebSocketFacade {
             connections.put(session, new ConnectionStruct(gameData.gameID(), authData.username()));
             String msg = new Gson().toJson(new LoadGameStruct(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game()));
             session.getRemote().sendString(msg);
-            msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, authData.username() + " nice"));
+            if (authData.username().equals(gameData.whiteUsername()) || authData.username().equals(gameData.blackUsername()))
+                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, authData.username() + " has connected to the game as a player"));
+            else
+                msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION, authData.username() + " has connected to the game as an observer"));
+            System.out.println("From WebSocketFacade:connect(): " + msg);
             broadcast(authData.username(), msg, gameID, false);
         } catch (Exception e) {
             stupidExceptionDuplicate(e, session);
@@ -115,15 +119,20 @@ public class WebSocketFacade {
         AuthData authData = this.data.getAuth(authToken);
         GameData gameData = this.data.getGame(gameID);
         ChessGame game = gameData.game();
-        ChessGame.TeamColor color = game.getBoard().getPiece(move.getStartPosition()).getTeamColor();
+
         try {
+            if (game.getBoard().getPiece(move.getStartPosition()) == null) { throw new InvalidMoveException("Error: no piece at the given location"); }
+            ChessGame.TeamColor color = game.getBoard().getPiece(move.getStartPosition()).getTeamColor();
             if ((gameData.blackUsername() == null || gameData.whiteUsername() == null)
                     || (!authData.username().equals(gameData.blackUsername())
                     && !authData.username().equals(gameData.whiteUsername()))){
                 throw new InvalidMoveException("Cannot move if not player");
             }
             // send updated game to server
+            System.out.println("making move");
+            System.out.println(move);
             game.makeMove(move);
+            System.out.println("done making move");
             GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(),
                     gameData.blackUsername(), gameData.gameName(), game, gameData.finished());
             this.data.updateGame(gameID, updatedGameData);
@@ -251,6 +260,7 @@ public class WebSocketFacade {
             }
             String msg = new Gson().toJson(new NotificationStruct(ServerMessage.ServerMessageType.NOTIFICATION,
                     username.concat(" has left the game")));
+            System.out.println("From WebSocketFacade:leave(): " + msg);
             broadcast(username, msg, gameID, false);
             connections.remove(session);
         } catch (Exception e) {

@@ -120,8 +120,7 @@ public class LoggedinUI {
             }
             Object ret;
             try {
-                System.out.println(params[0]);
-                ret = server.joinGame(params[0], color, auth);
+                ret = server.joinGame(Integer.toString(gameNumbers.get(gameID)), color, auth);
             } catch (ResponseException e) {
                 if (e.getMessage().equals("failure: 403\n")) {
                     return EscapeSequences.RED + "Cannot join game. Team taken\n" + EscapeSequences.RESET;
@@ -131,13 +130,12 @@ public class LoggedinUI {
             }
             if (ret!=Collections.emptyMap()) {
                 var tmp = server.listGames(auth);
-                int gameNum = this.gameNumbers.get(Integer.parseInt(params[0])) - 1;
                 List<GameData> list = ((GameList)tmp).games();
                 ChessGame.TeamColor teamColor;
                 if (color.equals("black") || color.equals("BLACK")) { teamColor = ChessGame.TeamColor.BLACK; }
                 else { teamColor = ChessGame.TeamColor.WHITE; }
-                System.out.println(EscapeSequences.RESET + EscapeSequences.BLUE + "Joined game!\n");
-                return new GameplayUI(this.username, this.auth, list.get(gameNum), teamColor, gameNum).repl();
+                System.out.print(EscapeSequences.RESET + EscapeSequences.BLUE + "Joined game " + list.get(gameID-1).gameName() + "!\n");
+                return new GameplayUI(this.username, this.auth, list.get(gameID-1), teamColor, gameNumbers.get(gameID), true).repl();
 
             } else {
                 return EscapeSequences.RED + "I think this game doesn't exist\n" + EscapeSequences.RESET;
@@ -165,11 +163,11 @@ public class LoggedinUI {
         if (gameNumbers.get(gameID) == null) {
             return EscapeSequences.RED + "Invalid game number\n" + EscapeSequences.RESET;
         }
-        System.out.println("Observing game " + params[0]);
+        System.out.println(EscapeSequences.BLUE +  "Observing game " + params[0]);
         int gameNum = gameNumbers.get(gameID);
         var tmp = server.listGames(auth);
         List<GameData> list = ((GameList)tmp).games();
-        new GameplayUI(this.username, this.auth, list.get(gameID-1), ChessGame.TeamColor.WHITE, gameNum).repl();
+        new GameplayUI(this.username, this.auth, list.get(gameID-1), ChessGame.TeamColor.WHITE, gameNum, false).repl();
         return "";
     }
 
