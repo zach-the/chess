@@ -120,11 +120,13 @@ public class LoggedinUI {
             }
             Object ret;
             try {
+                System.out.println(params[0]);
                 ret = server.joinGame(params[0], color, auth);
             } catch (ResponseException e) {
                 if (e.getMessage().equals("failure: 403\n")) {
                     return EscapeSequences.RED + "Cannot join game. Team taken\n" + EscapeSequences.RESET;
                 }
+                System.out.println(e.getMessage());
                 return EscapeSequences.RED + "Failed to join game\n" + EscapeSequences.RESET;
             }
             if (ret!=Collections.emptyMap()) {
@@ -134,18 +136,8 @@ public class LoggedinUI {
                 ChessGame.TeamColor teamColor;
                 if (color.equals("black") || color.equals("BLACK")) { teamColor = ChessGame.TeamColor.BLACK; }
                 else { teamColor = ChessGame.TeamColor.WHITE; }
-                switch(color) {
-                    case "black":
-                    case "BLACK":
-                        ChessBoardDisplay.displayGame(list.get(gameNum), ChessGame.TeamColor.BLACK);
-                        break;
-                    case "white":
-                    case "WHITE":
-                        ChessBoardDisplay.displayGame(list.get(gameNum), ChessGame.TeamColor.WHITE);
-                        break;
-                }
                 System.out.println(EscapeSequences.RESET + EscapeSequences.BLUE + "Joined game!\n");
-                return ""; // new GameplayUI(this.username, this.auth, list.get(gameNum), teamColor, gameNum).repl();
+                return new GameplayUI(this.username, this.auth, list.get(gameNum), teamColor, gameNum).repl();
 
             } else {
                 return EscapeSequences.RED + "I think this game doesn't exist\n" + EscapeSequences.RESET;
@@ -174,13 +166,11 @@ public class LoggedinUI {
             return EscapeSequences.RED + "Invalid game number\n" + EscapeSequences.RESET;
         }
         System.out.println("Observing game " + params[0]);
+        int gameNum = gameNumbers.get(gameID);
         var tmp = server.listGames(auth);
         List<GameData> list = ((GameList)tmp).games();
-        System.out.println(EscapeSequences.RESET + EscapeSequences.BLUE + "Observing game!\n");
-        int gameNum = this.gameNumbers.get(gameID) - 1;
-        ChessBoardDisplay.
-                displayGame(list.get(gameNum), ChessGame.TeamColor.WHITE); 
-        return "this";
+        new GameplayUI(this.username, this.auth, list.get(gameID-1), ChessGame.TeamColor.WHITE, gameNum).repl();
+        return "";
     }
 
     public String logout() throws ResponseException {

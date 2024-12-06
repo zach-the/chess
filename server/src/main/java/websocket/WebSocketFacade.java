@@ -95,8 +95,9 @@ public class WebSocketFacade {
     private void connect(String authToken, int gameID, Session session) throws SQLException, DataAccessException, IOException {
         System.out.println("CONNECT");
         AuthData authData = this.data.getAuth(authToken);
+        System.out.println(gameID);
         GameData gameData = this.data.getGame(gameID);
-
+        System.out.println(gameData);
         try {
             connections.put(session, new ConnectionStruct(gameData.gameID(), authData.username()));
             String msg = new Gson().toJson(new LoadGameStruct(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game()));

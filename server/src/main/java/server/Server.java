@@ -139,7 +139,7 @@ public class Server {
             System.out.println("Something went wrong with getting gameID");
         }
         String playerColor = (String) (new Gson().fromJson(req.body(), Map.class)).get("playerColor");
-//        System.out.println(authToken + playerColor + gameIDObject);
+        System.out.println("\t" + authToken +"\n\t"+ playerColor +"\n\t"+ gameIDObject);
         JoinGameReqeust joinGameReqeust = new JoinGameReqeust(authToken, playerColor, gameID);
         var ret = service.joinGame(joinGameReqeust);
         if (ret.equals(Collections.emptyMap())){

@@ -93,31 +93,34 @@ public class Service {
         return new CreateGameResponse(gameCount);
     }
 
-    public Object joinGame(JoinGameReqeust joinGameReqeust) throws DataAccessException {
+    public Object joinGame(JoinGameReqeust joinGameRequest) throws DataAccessException {
         AuthData auth = null;
         try {
-            auth = this.dataAccess.getAuth(joinGameReqeust.authToken());
+            auth = this.dataAccess.getAuth(joinGameRequest.authToken());
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
-        if (auth == null || !auth.authToken().equals(joinGameReqeust.authToken())) {
+        if (auth == null || !auth.authToken().equals(joinGameRequest.authToken())) {
             return new ErrorResponse("Error: unauthorized");
         }
-        GameData game = this.dataAccess.getGame(joinGameReqeust.gameID());
-        if (game == null || joinGameReqeust.playerColor() == null || joinGameReqeust.gameID() == null) {
+        GameData game = this.dataAccess.getGame(joinGameRequest.gameID());
+        if (game == null || joinGameRequest.playerColor() == null || joinGameRequest.gameID() == null) {
+            if (game != null) System.out.println(game); else System.out.println("game was null");
+            if (joinGameRequest.playerColor() != null) System.out.println(joinGameRequest.playerColor()); else System.out.println("color was null");
+            if (joinGameRequest.gameID() != null) System.out.println(joinGameRequest.gameID()); else System.out.println("id was null");
             return new ErrorResponse("Error: bad request");
         }
-        if (joinGameReqeust.playerColor().equals("WHITE") || joinGameReqeust.playerColor().equals("white")) {
+        if (joinGameRequest.playerColor().equals("WHITE") || joinGameRequest.playerColor().equals("white")) {
             if (game.whiteUsername() == null || game.whiteUsername().equals("null")) {
                 GameData newGame = new GameData(game.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game(), false);
-                this.dataAccess.updateGame(joinGameReqeust.gameID(), newGame);
+                this.dataAccess.updateGame(joinGameRequest.gameID(), newGame);
             } else {
                 return new ErrorResponse("Error: already taken");
             }
-        } else if (joinGameReqeust.playerColor().equals("BLACK") || joinGameReqeust.playerColor().equals("black")) {
+        } else if (joinGameRequest.playerColor().equals("BLACK") || joinGameRequest.playerColor().equals("black")) {
             if (game.blackUsername() == null || game.blackUsername().equals("null")) {
                 GameData newGame = new GameData(game.gameID(), game.whiteUsername(), auth.username(), game.gameName(), game.game(), false);
-                this.dataAccess.updateGame(joinGameReqeust.gameID(), newGame);
+                this.dataAccess.updateGame(joinGameRequest.gameID(), newGame);
             } else {
                 return new ErrorResponse("Error: already taken");
             }

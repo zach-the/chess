@@ -17,10 +17,10 @@ public class ChessBoardDisplay {
     private static final String WHITE_TEAM = SET_TEXT_COLOR_RED;
     private static final String BLACK_TEAM = SET_TEXT_COLOR_BLUE;
 
-    public static void displayGame(GameData gameData, ChessGame.TeamColor perspective) {
+    public static void displayGame(ChessGame game, ChessGame.TeamColor perspective) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        ChessBoard board = gameData.game().getBoard();
+        ChessBoard board = game.getBoard();
 
         if (perspective == ChessGame.TeamColor.WHITE || perspective == null){
             drawHeaders(out);
