@@ -135,7 +135,8 @@ public class LoggedinUI {
                 if (color.equals("black") || color.equals("BLACK")) { teamColor = ChessGame.TeamColor.BLACK; }
                 else { teamColor = ChessGame.TeamColor.WHITE; }
                 System.out.print(EscapeSequences.RESET + EscapeSequences.BLUE + "Joined game " + list.get(gameID-1).gameName() + "!\n");
-                return new GameplayUI(this.username, this.auth, list.get(gameID-1), teamColor, gameNumbers.get(gameID), true).repl();
+                new GameplayUI(this.username, this.auth, list.get(gameID-1), teamColor, gameNumbers.get(gameID), true).repl();
+                return "";
 
             } else {
                 return EscapeSequences.RED + "I think this game doesn't exist\n" + EscapeSequences.RESET;

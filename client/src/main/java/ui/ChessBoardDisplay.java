@@ -26,17 +26,17 @@ public class ChessBoardDisplay {
         ChessBoard board = game.getBoard();
 
         if (perspective == ChessGame.TeamColor.WHITE || perspective == null){
-            drawHeaders(out);
+            drawHeaders(out, perspective);
             for (int i = 8; i >=1; i--) {
-                drawRow(out, i, board, null);
+                drawRow(out, i, board, null, perspective);
             }
-            drawHeaders(out);
+            drawHeaders(out, perspective);
         } else {
-            drawHeaders(out);
+            drawHeaders(out, perspective);
             for (int i = 1; i <= 8; i++) {
-                drawRow(out, i, board, null);
+                drawRow(out, i, board, null, perspective);
             }
-            drawHeaders(out);
+            drawHeaders(out, perspective);
         }
     }
 
@@ -55,25 +55,31 @@ public class ChessBoardDisplay {
         }
 
         if (perspective == ChessGame.TeamColor.WHITE || perspective == null){
-            drawHeaders(out);
+            drawHeaders(out, perspective);
             for (int i = 8; i >=1; i--) {
-                drawRow(out, i, board, highlightThese);
+                drawRow(out, i, board, highlightThese, perspective);
             }
-            drawHeaders(out);
+            drawHeaders(out, perspective);
         } else {
-            drawHeaders(out);
+            drawHeaders(out, perspective);
             for (int i = 1; i <= 8; i++) {
-                drawRow(out, i, board, highlightThese);
+                drawRow(out, i, board, highlightThese, perspective);
             }
-            drawHeaders(out);
+            drawHeaders(out, perspective);
         }
     }
 
-    private static void drawHeaders(PrintStream out) {
+    private static void drawHeaders(PrintStream out, ChessGame.TeamColor perspective) {
         String[] headers = {"a", "b", "c", "d", "e", "f", "g", "h"};
         out.print(borderFormat(" "));
-        for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-            out.print(borderFormat(headers[boardCol]));
+        if (perspective == ChessGame.TeamColor.WHITE) {
+            for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+                out.print(borderFormat(headers[boardCol]));
+            }
+        } else {
+            for (int boardCol = BOARD_SIZE_IN_SQUARES - 1; boardCol >= 0; --boardCol) {
+                out.print(borderFormat(headers[boardCol]));
+            }
         }
         out.println("   " + EscapeSequences.RESET);
     }
@@ -96,11 +102,20 @@ public class ChessBoardDisplay {
         return BORDER_COLOR + " " + character + " ";
     }
 
-    private static void drawRow(PrintStream out, int row, ChessBoard board, Collection<ChessPosition> highlight) {
+    private static void drawRow(PrintStream out, int row, ChessBoard board, Collection<ChessPosition> highlight, ChessGame.TeamColor perspective) {
         out.print(borderFormat(row));
-        for (int i = 1; i <= 8; i++) {
-            if (highlight != null && highlight.contains(new ChessPosition(row, i))) out.print(getPieceString(board, row, i, true));
-            else out.print(getPieceString(board, row, i, false));
+        if (perspective == ChessGame.TeamColor.WHITE) {
+            for (int i = 1; i <= 8; i++) {
+                if (highlight != null && highlight.contains(new ChessPosition(row, i)))
+                    out.print(getPieceString(board, row, i, true));
+                else out.print(getPieceString(board, row, i, false));
+            }
+        } else {
+            for (int i = 8; i >= 1; i--) {
+                if (highlight != null && highlight.contains(new ChessPosition(row, i)))
+                    out.print(getPieceString(board, row, i, true));
+                else out.print(getPieceString(board, row, i, false));
+            }
         }
         out.print(borderFormat(row) + EscapeSequences.RESET + "\n");
     }

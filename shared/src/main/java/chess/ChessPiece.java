@@ -321,7 +321,6 @@ public class ChessPiece {
 
         addRookMoves(board, position, moves);
         addBishopMoves(board, position, moves);
-
     }
 
     private void validateKingMove(ChessBoard board, ChessPosition position, ChessPosition endPosition, List<ChessMove> moves) {

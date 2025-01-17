@@ -38,7 +38,7 @@ public class WebSocketClient extends Endpoint {
                 for (int i = 0; i < username.length(); i++) {
                     System.out.print("\b");
                 }
-                System.out.println("\b\b\b\b\b\b\b");
+                System.out.print("\b\b\b\b\b\b\b");
                 handler(message);
             }
         });

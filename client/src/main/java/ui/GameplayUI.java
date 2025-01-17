@@ -50,21 +50,19 @@ public class GameplayUI {
 
     public String repl() {
         System.out.print(help());
-
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while(!result.equals("Leaving Game...")){
+        while(!result.contains("Leaving Game...")){
             String line = scanner.nextLine();
-
             try {
                 result = eval(line);
-                if (!result.equals("noPrint")) System.out.print(EscapeSequences.BLUE + result);
-                if (result.equals("Leaving Game...")) { break; }
+                if (!result.contains("noPrint")) System.out.print(EscapeSequences.BLUE + result);
+                if (result.contains("Leaving Game...")) { break; }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(EscapeSequences.RED + msg + EscapeSequences.RESET);
             }
-            if (!result.equals("noPrint")) printPrompt(username);
+            if (!result.contains("noPrint")) printPrompt(username);
         }
         System.out.println();
         return EscapeSequences.BLUE + result + EscapeSequences.RESET + EscapeSequences.WHITE;
@@ -105,8 +103,18 @@ public class GameplayUI {
     }
 
     private String resign() {
-        client.sendMessage(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.RESIGN, auth, gameID)));
-        return "";
+        Scanner scanner = new Scanner(System.in);
+        var line = "";
+        while(!line.equals("y") && !line.equals("n")) {
+            System.out.print(EscapeSequences.RED + "You are about to resign. Are you sure? [y/n] >>> " + EscapeSequences.RESET);
+            line = scanner.nextLine();
+        }
+        if (line.equals("y")) {
+            client.sendMessage(new Gson().toJson(new UserGameCommand(UserGameCommand.CommandType.RESIGN, auth, gameID)));
+            return "";
+        } else {
+            return "Resuming game...\n";
+        }
     }
 
     int verifySize(int in) throws Exception {
@@ -142,7 +150,7 @@ public class GameplayUI {
 
     private String move(String... params) {
         if (!player) {
-            return EscapeSequences.RED + "You cannot make moves as an observer\n" + EscapeSequences.RESET;
+            return EscapeSequences.RED + "Error: You cannot make moves as an observer\n" + EscapeSequences.RESET;
         }
         if (params.length == 2 || params.length == 3) {
             ChessPosition startPosition, endPosition;
@@ -150,21 +158,21 @@ public class GameplayUI {
                 startPosition = new ChessPosition(verifySize(params[0].charAt(1)-'0'), handleChar(params[0].charAt(0)));
                 endPosition = new ChessPosition(verifySize(params[1].charAt(1)-'0'), handleChar(params[1].charAt(0)));
             } catch (Exception e) {
-                return EscapeSequences.RED + "the first two inputs must be coordinates as follows: colRow. example: c4 c5\n" + EscapeSequences.RED;
+                return EscapeSequences.RED + "Error: need two correct coordinates. Use 'help' for more\n" + EscapeSequences.RED;
             }
             ChessPiece.PieceType promotion = null;
             if (params.length == 3) {
                 try {
                     promotion = handlePromotion(params[2]);
                 } catch (Exception e) {
-                    return EscapeSequences.RED + "Invalid promotion piece\n" + EscapeSequences.RESET;
+                    return EscapeSequences.RED + "Error: Invalid promotion piece\n" + EscapeSequences.RESET;
                 }
             }
             ChessMove move = new ChessMove(startPosition, endPosition, promotion);
             client.sendMessage(new Gson().toJson(new MakeMoveStruct("MAKE_MOVE", auth, gameID, move)));
             return "noPrint";
         } else {
-            return EscapeSequences.RED + "Move requires 2 or 3 inputs: use 'help' for more\n" + EscapeSequences.RESET;
+            return EscapeSequences.RED + "Error: Move requires 2 or 3 inputs: use 'help' for more\n" + EscapeSequences.RESET;
         }
     }
 
@@ -174,7 +182,7 @@ public class GameplayUI {
             try {
                 highlightThis = new ChessPosition(verifySize(params[0].charAt(1)-'0'), handleChar(params[0].charAt(0)));
             } catch (Exception e) {
-                return EscapeSequences.RED + "the input coordinate must be as follows: colRow. example: c4\n" + EscapeSequences.RESET;
+                return EscapeSequences.RED + "Error: Highlight requires 1 coordinate input: use 'help' for more\n" + EscapeSequences.RESET;
             }
             client.highlight(perspective, highlightThis);
             return "noPrint";
